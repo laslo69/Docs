@@ -2,13 +2,23 @@ il peut y avoir des erreurs au cours du processus de démarrage, mais elles ne s
 
 Toutes les erreurs génèrent des messages qui peuvent être utilisés pour de futures investigations, car ils contiennent des informations précieuses sur le moment et la manière dont l’erreur s’est produite
 
-L’espace mémoire où le noyau stocke ses messages, y compris les messages de démarrage, est appelé kernel ring buffer
+L’espace mémoire où le noyau stocke ses messages, y compris les messages de démarrage, est appelé `kernel ring buffer`
 
-La sortie de `dmesg` peut compter des centaines de lignes
+## Kernel Buffer Ring
+
+La sortie de `dmesg` affiche les messages acutels dans le `kernel buffer ring`, peut compter des centaines de lignes
 
 Les valeurs au début de chaque ligne correspondent au nombre de secondes par rapport à l’instant où le noyau a commencé à être chargé
 
+Les messages sont stockés dans `/var/log/`, les fichiers intéressants sont souvent `syslog`, `boot.log` et `messages`
+
 Les commandes `dmesg -H` ou `dmesg --human` activeront la pagination par défaut
+
+Certains paramètres peuvent être intéressant
+
+- T : Améliore l'affichage du timestamp
+- k : Affiche uniquement les messages kernel
+- l : Affiche les messages selon le niveau de gravité ( warn,err,crit,emerg )
 
 ```bash
 $ dmesg
@@ -37,7 +47,7 @@ Cependant, le tampon circulaire du noyau perd tous les messages lorsque le syst�
 
 ## journalctl
 
-Dans les systèmes basés sur systemd, la commande `journalctl` affichera les messages d’initialisation avec les options `-b`, `--boot`, `-k` ou `--dmesg`
+Dans les systèmes basés sur systemd, la commande `journalctl` affichera les messages d’initialisation `-k` pour les messages kernel ou `--dmesg`
 
 La commande `journalctl --list-boots` affiche une liste de numéros de démarrage relatifs au démarrage en cours, leur empreinte d’identification et l’horodatage du premier et du dernier message correspondant
 
@@ -52,10 +62,42 @@ journalctl --list-boots
 
 Les journaux d’initialisation précédents sont également conservés dans les systèmes basés sur systemd, de sorte que les messages des sessions précédentes du système d’exploitation peuvent toujours être inspectés
 
-Si les options `-b 0` ou `--boot=0` sont fournies, alors les messages pour le démarrage en cours seront affichés. Les options `-b -1` ou `--boot=1` afficheront les messages de la précédente initialisation, en augmentant la vleur de `-b` ou `--boot`, il est possible de remonter sur des boots précédents
+Si les options `-b 0` ou `--boot=0` sont fournies, alors les messages pour le démarrage actuel seront affichés
 
-Les messages d’initialisation ainsi que les autres messages émis par le système d’exploitation sont stockés dans des fichiers à l’intérieur du répertoire `/var/log/`
+Les options `-b -1` ou `--boot=1` afficheront les messages de la précédente initialisation, en augmentant la valeur de `-b` ou `--boot`, il est possible de remonter sur les boots précédents
 
-Si une erreur critique se produit et que le système d’exploitation est incapable de poursuivre le processus d’initialisation après le chargement du noyau et de l’initramfs, un support de démarrage alternatif pourrait être utilisé pour démarrer le système et accéder au système de fichiers correspondant.
+Le paramètre `-k` permet de consulter les messages kernel contenu dans `journalctl`
 
-Ensuite, les fichiers en dessous de `/var/log/` peuvent être examinés pour déterminer les raisons possibles de l’interruption du processus de démarrage. Les options `-D` ou `--directory` de la commande `journalctl` peuvent être utilisées pour lire les logs dans des répertoires autres que `/var/log/journal/`, qui est l’emplacement par défaut des messages de journalisation de systemd. Étant donné que les messages du journal de systemd ne sont pas stockés au format texte brut, la commande `journalctl` est indispensable pour les lire
+```bash
+journalctl -k
+août 30 16:09:42 debian kernel: Linux version 6.12.101+deb13-amd64 (debian-kern>
+août 30 16:09:42 debian kernel: Command line: BOOT_IMAGE=/boot/vmlinuz-6.12.101>
+août 30 16:09:42 debian kernel: BIOS-provided physical RAM map:
+août 30 16:09:42 debian kernel: BIOS-e820: [mem 0x0000000000000000-0x0000000000>
+août 30 16:09:42 debian kernel: BIOS-e820: [mem 0x000000000009fc00-0x0000000000>
+août 30 16:09:42 debian kernel: BIOS-e820: [mem 0x00000000000f0000-0x0000000000>
+août 30 16:09:42 debian kernel: BIOS-e820: [mem 0x0000000000100000-0x000000003f>
+août 30 16:09:42 debian kernel: BIOS-e820: [mem 0x000000003ffdc000-0x000000003f>
+août 30 16:09:42 debian kernel: BIOS-e820: [mem 0x00000000b0000000-0x00000000bf>
+août 30 16:09:42 debian kernel: BIOS-e820: [mem 0x00000000fed1c000-0x00000000fe>
+août 30 16:09:42 debian kernel: BIOS-e820: [mem 0x00000000feffc000-0x00000000fe>
+août 30 16:09:42 debian kernel: BIOS-e820: [mem 0x00000000fffc0000-0x00000000ff>
+août 30 16:09:42 debian kernel: BIOS-e820: [mem 0x000000fd00000000-0x000000ffff>
+août 30 16:09:42 debian kernel: NX (Execute Disable) protection: active
+août 30 16:09:42 debian kernel: APIC: Static calls initialized
+août 30 16:09:42 debian kernel: SMBIOS 2.8 present.
+août 30 16:09:42 debian kernel: DMI: QEMU Standard PC (Q35 + ICH9, 2009), BIOS >
+août 30 16:09:42 debian kernel: DMI: Memory slots populated: 1/1
+août 30 16:09:42 debian kernel: Hypervisor detected: KVM
+... Output Truncated
+```
+
+Le paramètre `-p` permet de filtrer par niveau de criticité ( emerg, alert, crit, err, warning, notice, info, debug )
+
+## Examiner log d'un autre PC
+
+Si une erreur critique se produit et que le système d’exploitation est incapable de poursuivre le processus d’initialisation après le chargement du noyau et de l’initramfs, un support de démarrage alternatif pourrait être utilisé pour démarrer le système et accéder au système de fichiers correspondant
+
+Ensuite, les fichiers en dessous de `/var/log/` peuvent être examinés pour déterminer les raisons possibles de l’interruption du processus de démarrage
+
+Les options `-D` ou `--directory` de la commande `journalctl` peuvent être utilisées pour lire les logs dans des répertoires autres que `/var/log/journal/`, qui est l’emplacement par défaut des messages de journalisation de systemd. Étant donné que les messages du journal de systemd ne sont pas stockés au format texte brut, la commande `journalctl` est indispensable pour les lire

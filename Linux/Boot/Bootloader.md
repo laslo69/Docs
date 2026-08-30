@@ -8,8 +8,6 @@ Il peut arriver que la liste n’apparaisse pas automatiquement, mais elle peut 
 
 Lors du démarrage, il est possible de passer des paramètres au kernel. C'est paramètres ne sont valide que pour ce boot uniquement
 
-La modification des paramètres du noyau n’est pas nécessaire en général, mais elle peut s’avérer utile pour détecter et résoudre les problèmes liés au système d’exploitation.
-
 La plupart des paramètres du noyau suivent le schéma `option=valeur`. Voici quelques-uns des paramètres les plus pertinents du noyau :
 
 - `acpi`
@@ -56,26 +54,20 @@ Effectue le montage initial du système de fichiers racine en lecture seule.
 
 Permet l’écriture dans le système de fichiers racine lors du montage initial.
 
-Les paramètres du noyau doivent être ajoutés au fichier `/etc/default/grub` à la ligne `GRUB_CMDLINE_LINUX` pour les rendre persistants après chaque redémarrage
+## Ajouter paramètre
+
+Lors du démarrage de la machine, il est possible de modifier le démarrage de l'OS en modifiant les paramètres du bootloader
+
+Dans la fenêtre de sélection ( démarrage, options avancées, etc...), en appuyant sur la touche `e`, il est possible d'ajouter une valeur
+
+L'ajout du paramètre se fait dans la ligne qui commence par `linux`
 
 exemple avec l'ajout de `maxcpus`
 
 ```bash
-GRUB_CMDLINE_LINUX_DEFAULT="quiet splash maxcpus=4"
+linux /boot/vmlinuz-6.12.101+deb13-amd64 root=UUID=41ecdc02-a293-4223-bdfe-21023478e614 ro splash quiet maxcpus=1
 ```
 
-Un nouveau fichier de configuration pour le chargeur d’amorçage doit être généré à chaque fois que `/etc/default/grub` change, ce qui est effectué par la commande `grub-mkconfig -o /boot/grub/grub.cfg`. Une fois que le système d’exploitation tourne, les paramètres du noyau utilisés pour le chargement de la session en cours sont disponibles en lecture dans le fichier `/proc/cmdline`.
+Une fois que le système d’exploitation tourne, les paramètres du noyau utilisés pour le chargement de la session en cours sont disponibles en lecture dans le fichier `/proc/cmdline`.
 
-Sur debian/ubuntu/mint :
-
-```bash
-update-grub
-ou
-grub-mkconfig -o /boot/grub/grub.cfg
-```
-
-Sur fedora/Alma,Rocky : 
-
-```bash
-grub2-mkconfig -o /boot/grub2/grub.cfg
-```
+en utilisant un outils comme `htop` par exemple, sur les 2 processeurs alloué à la VM, 1 est assigné avec la mention `offline`
