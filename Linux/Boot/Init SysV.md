@@ -1,6 +1,8 @@
 
 Un gestionnaire de services basé sur la norme SysV init contrôle les daemons et les ressources qui seront disponibles en se basant sur le concept de runlevels
 
+Le gestionnaire de services est le premier programme lancé par le noyau au cours du processus de démarrage, son PID (numéro d’identification du processus) est donc toujours `1`.
+
 Les runlevels sont numérotés de 0 à 6 et définis par les mainteneurs des distributions pour répondre à des objectifs spécifiques. Les seules définitions de niveau d’exécution communes à toutes les distributions sont les niveaux d’exécution 0, 1 et 6 et ils sont généralement affectés aux objectifs suivants :
 
 - Niveau 0 : Arrêt du système
