@@ -37,6 +37,13 @@ id:niveaux:action:processus
 	- `wait` : Le processus sera exécuté pour les niveaux d’exécution donnés et `init` attendra qu’il se termine pour continuer.
 	- `respawn` : Le processus sera relancé s’il est interrompu.
 	- `ctrlaltdel` : Le processus sera exécuté lorsque le processus `init` reçoit le signal `SIGINT`, déclenché lorsque la séquence de touches Ctrl+Alt+Del est actionnée.
+	- `initdefault` : définit le niveau par défaut lors du boot et lancement de `init`
+	- `off` : La ligne est ignorée
+	- `once` : la commande est exécuté à chaque changement de niveau pour les niveaux spécifié
+	- `powerwait` : la commande est lancé si le serveur passe sur l'alimentation de secour ( UPS )
+	- `powerfail` : similaire `powerwait` mais sans attente de fin d'exécution de la commande
+	- `powerokwait` : la commande est lancé lorsque le courant est rétabli
+	- `powerfailnow` : commande de derniers recours lorsque l'alimentation de secours est presque vide
 
 Le niveau d’exécution par défaut - celui qui sera choisi si aucun autre n’est fourni comme paramètre du noyau - est également défini dans `/etc/inittab`, dans l’entrée `id:x:initdefault`
 

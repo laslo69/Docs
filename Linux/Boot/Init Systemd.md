@@ -28,37 +28,29 @@ La commande principale pour contrôler les unités systemd est `systemctl`. La c
 
 Pour une unité fictive appelée `unit.service`, par exemple, les opérations `systemctl` les plus courantes seront :
 
-Démarre `unit`
+Tableau comparatif entre `sysv init` et `systemd`
 
-`systemctl start unit.service`
+|          Service          |                    Systemctl                    |                   Description                    |
+| :-----------------------: | :---------------------------------------------: | :----------------------------------------------: |
+|    service name start     |              systemctl start name               |                Démarre le service                |
+|     service name stop     |               systemctl stop name               |                Arrête le service                 |
+|   service name restart    |             systemctl restart name              |               Redémarre le service               |
+| service name condrestart  |           systemctl try-restart name            | Redémarre le service seulement si il est démarré |
+|    service name reload    |              systemctl reload name              |            Recharge la configuration             |
+|    service name status    | systemctl status name, systemctl is-active name |        Indique si le service est démarré         |
+| service name --status-all |    systemctl list-units --type service -all     |      Affiche le status de tous les services      |
 
-Arrête `unit`
+Pour l'activation de service, avec `systemctl`
 
-`systemctl stop unit.service`
+- `--before` liste les services et les unités qui doivent démarrer **après** l'unité spécifiée 
+- `--after`  liste les services qui doivent démarrer **avant** l'unité en question
 
-Relance `unit`
-
-`systemctl restart unit.service`
-
-Affiche l’état de `unit`, y compris l’état d’activation
-
-`systemctl status unit.service`
-
-Affiche _active_ si `unit`est en état de marche ou _inactive_ dans le cas contraire
-
-`systemctl is-active unit.service`
-
-Active `unit`, c’est-à-dire que `unit` se chargera lors de l’initialisation du système
-
-`systemctl enable unit.service`
-
-`unit` ne démarrera pas avec le système
-
-`systemctl disable unit.service`
-
-Vérifie si `unit` démarre le système. La réponse est enregistrée dans la variable `$?`. La valeur `0` indique que `unit` démarre avec le système et la valeur `1` indique que `unit` ne démarre pas avec le système
-
-`systemctl is-enabled unit.service`
+|       chkconfig       |                                           systemctl                                           |              description               |
+| :-------------------: | :-------------------------------------------------------------------------------------------: | :------------------------------------: |
+|   chkconfig name on   |                                     systemctl enable name                                     |           Active un service            |
+|  chkconfig name off   |                                    systemctl disable name                                     |          Désactive un service          |
+| chkconfig --list name |                       systemctl status name, systemctl is-enabled name                        |       Indique l'état du service        |
+|   chkconfig --list    | systemctl list-unit-files --type service, systemctl list-dependencies --before / --after name | Liste des services et leurs dépendance |
 
 Si aucune autre unité du même nom n’existe dans le système, le suffixe après le point peut être omis. Si, par exemple, il n’y a qu’une seule unité `httpd` de type `service`, alors un simple `httpd` est suffisant comme paramètre d’unité pour `systemctl`
 
@@ -86,6 +78,18 @@ graphical.target
 ```
 
 Comme pour les systèmes avec SysV, la cible par défaut ne doit jamais pointer vers `shutdown.target`, puisqu’elle correspond au niveau d’exécution 0 (arrêt).
+
+tableau comparatif `sysv init` et `systemd`
+
+| Runlevel |             Target unit             |     Description     |
+| :------: | :---------------------------------: | :-----------------: |
+|    0     |  runlevel0.target, poweroff.target  | Exctinction machine |
+|    1     |   runlevel1.target, rescue.target   |  Boot single user   |
+|    2     | runlevel2.target, multi-user.target | console, multi-user |
+|    3     | runlevel3.target, multi-user.target | console, multi-user |
+|    4     | runlevel4.target, multi-user.target | console, multi-user |
+|    5     | runlevel5.target, graphical.target  |   GUI, multi-user   |
+|    6     |   runlevel6.target, reboot.target   |       Reboot        |
 
 Les fichiers de configuration associés à chaque unité se trouvent dans le répertoire `/lib/systemd/system/`
 
