@@ -3,9 +3,16 @@ Systemd est un gestionnaire de système et de services moderne avec une couche d
 
 Le gestionnaire de services est le premier programme lancé par le noyau au cours du processus de démarrage, son PID (numéro d’identification du processus) est donc toujours `1`.
 
-systemd a une structure parallèle, utilise les sockets et D-Bus pour l’activation des services, l’exécution de démons à la demande, la surveillance des processus avec _cgroups_, le _support des instantanés_, la récupération des sessions système, le contrôle des points de montage et un contrôle des services basé sur les dépendances
+systemd a une structure parallèle, utilise les sockets et D-Bus pour l’activation des services, l’exécution de démons à la demande, la surveillance des processus avec _cgroups_, le support des instantanés, la récupération des sessions système, le contrôle des points de montage et un contrôle des services basé sur les dépendances
 
 Actuellement, systemd constitue la boîte à outils la plus utilisée pour gérer les ressources et les services du système, qui sont désignés sous le nom units par systemd, Une unité est composée d’un nom, d’un type et d’un fichier de configuration correspondant
+
+Les `units` sont stockés sous `/lib/systemd/system`
+
+D'autre répertoires peuvent être utilisé
+
+- `/usr/local/lib/systemd/system`
+- `/usr/lib/systemd/system`
 
 On distingue sept types d’unités systemd :
 
