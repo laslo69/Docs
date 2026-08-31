@@ -8,7 +8,7 @@ L'objectif est de consolider les connaissances théoriques par la pratique, de c
 
 Cette documentation est avant tout destinée à l'apprentissage et à la progression personnelle. Elle peut contenir des notes, des explications, des exemples de configuration, des commandes ainsi que des travaux pratiques réalisés en environnement de test.
 
-Tout le contenu ne refléte que de mes connaissances et ne doit, en aucun cas être perçue comme informations, exemple, configuration fiable, basé sur mes recherches et expérimentations personnel
+> Note : cette documentation reflète mes connaissances, recherches et expérimentations personnelles. Elle est destinée à l'apprentissage et ne doit pas être considérée comme une documentation officielle ni comme une source de référence garantissant l'exactitude des configurations ou procédures présentées.
 
 ## Index Cisco
 
