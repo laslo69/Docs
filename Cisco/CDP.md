@@ -133,34 +133,6 @@ Le CDP Response est la réponse envoyée après une demande CDP Request
 
 Il fournit les informations demandées par le voisin
 
-## Header CDP
-
-### Header
-
-```bash
-+--------------------------------------+
-| Version(8b) | TTL (8b) | Checksum(8b)|
-+--------------------------------------+
-```
-
-- VER : Version du protocole
-- TTL : Durée de vie du message
-- Checksum : contrôle de l’intégrité du message
-
-### Header TLV
-
-```bash
-+--------------------------------------+
-	| Version(16b) |     TTL (16b)     |
-+--------------------------------------+
-			  Value(32b)               |
-+--------------------------------------+
-```
-
-- Type : type du TLV
-- Length : longueur selon type TLV
-- Value : valeur selon type TLV
-
 ## Configuration
 
 Sur une topologie avec 3 switch en ligne
