@@ -46,3 +46,28 @@ UEFI ne prend en compte que les paramètres stockés dans la NVRAM attaché à l
 Ces définitions indiquent l’emplacement des programmes compatibles UEFI, appelés _applications EFI_, qui seront exécutés automatiquement ou invoqués à partir d’un menu de démarrage
 
 Les applications EFI peuvent être des chargeurs d’amorçage, des sélecteurs de systèmes d’exploitation, des outils de diagnostic et de réparation système, etc. Ils doivent figurer dans une partition classique de périphérique de stockage et dans un système de fichiers compatible ( généralement FAT 12,16,32 )
+
+En l'abscence d'entrée NVRAM, c'est `/boot/efi/EFI/BOOT/bootx64.efi` qui sera exécuté
+
+arborescence de `/BOOT/`
+
+- grubx64.efi : bootloader
+- shimx64.efi : bootloader secure boot
+- grub.cfg : Configuration de grub2
+- BOOTX64.efi : fichier lu pour ajout NVRAM
+- mmx64.efi : Executable signé secure boot avec clé machine, passe le relais à GRUB2
+## Partition boot
+
+Sous Linux, les fichiers nécessaires au processus de démarrage sont généralement stockés sur une partition de démarrage, montée sous le système de fichiers racine et communément appelée `/boot`
+
+Une partition de démarrage n’est pas nécessaire sur les systèmes actuels dans la mesure où les chargeurs de démarrage comme GRUB permettent généralement de monter le système de fichiers racine et de rechercher les fichiers nécessaires à l’intérieur d’un répertoire `/boot`, mais il s’agit là d’une bonne pratique qui permet de séparer les fichiers nécessaires au processus de démarrage du reste du système de fichiers
+
+Cette partition est généralement la première sur le disque
+
+Cela tient au fait que le BIOS des PC IBM d’origine s’adressait aux disques en utilisant des cylindres, des têtes et des secteurs (CHS pour _Cylinder/Head/Sector_), avec un maximum de 1024 cylindres, 256 têtes et 63 secteurs, ce qui donne une taille maximale de disque de 528 Mo (504 Mo sous MS-DOS)
+
+Ce qui signifie que tout ce qui dépasse cette limite ne serait pas accessible, à moins qu’un autre système d’adressage de disque comme LBA, ( Logical Block Addressing ) ne soit utilisé
+
+Ainsi, pour une compatibilité maximale, la partition `/boot` est généralement située au début du disque et se termine avant le cylindre 1024 (528 Mo), ce qui garantit que la machine sera toujours capable de charger le noyau. La taille recommandée pour cette partition sur une machine actuelle est de 300 Mo
+
+D’autres raisons pour une partition `/boot` séparée sont le chiffrement et la compression, étant donné que certaines méthodes peuvent ne pas encore être supportées par GRUB 2, ou si vous avez besoin de formater la partition racine du système (`/`) en utilisant un système de fichiers non supporté

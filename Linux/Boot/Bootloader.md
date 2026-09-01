@@ -4,6 +4,8 @@ Dès qu’il est appelé par le BIOS ou par l’UEFI, GRUB affiche une liste de 
 
 Il peut arriver que la liste n’apparaisse pas automatiquement, mais elle peut être invoquée en appuyant sur `Maj` pendant que GRUB est appelé par le BIOS. Avec les systèmes UEFI, la touche `Échap` doit être utilisée à la place
 
+## GRUB
+
 ## Passer paramètre
 
 Lors du démarrage, il est possible de passer des paramètres au kernel. C'est paramètres ne sont valide que pour ce boot uniquement
@@ -71,3 +73,30 @@ linux /boot/vmlinuz-6.12.101+deb13-amd64 root=UUID=41ecdc02-a293-4223-bdfe-21023
 Une fois que le système d’exploitation tourne, les paramètres du noyau utilisés pour le chargement de la session en cours sont disponibles en lecture dans le fichier `/proc/cmdline`.
 
 en utilisant un outils comme `htop` par exemple, sur les 2 processeurs alloué à la VM, 1 est assigné avec la mention `offline`
+
+## Contenu bootloader
+
+Le contenu de la partition `/boot` peut varier en fonction de l’architecture système ou du chargeur d’amorçage en vigueur, mais sur un système de type x86, vous trouverez généralement les fichiers ci-dessous.
+
+La plupart d’entre eux sont nommés avec un suffixe `-VERSION` qui représente la version du noyau Linux correspondant. Par conséquent, un fichier de configuration pour le noyau Linux en version `4.15.0-65-generic` serait appelé `config-4.15.0-65-generic`
+
+### Fichier config
+
+Ce fichier, généralement appelé `config-VERSION` (voir l’exemple ci-dessus), contient les paramètres de configuration du noyau Linux. Ce fichier est généré automatiquement lors de la compilation ou de l’installation d’un nouveau noyau et ne doit pas être modifié directement par l’utilisateur
+
+### System.map
+
+Ce fichier est une table de recherche qui fait correspondre les noms de symboles (comme les variables ou les fonctions) à leur position correspondante en mémoire. Il sert à déboguer un type de défaillance du système connue sous le nom de _kernel panic_, étant donné qu’il permet à l’utilisateur de savoir quelle variable ou fonction a été appelée lorsque la défaillance s’est produite. Comme le fichier `config`, le nom est généralement `System.map-VERSION` (par exemple `System.map-4.15.0-65-generic`)
+
+### Noyau Linux
+
+C’est le noyau du système d’exploitation à proprement parler. Le nom est généralement `vmlinux-VERSION` (par exemple `vmlinux-4.15.0-65-generic`). Vous trouverez également le nom `vmlinuz` au lieu de `vmlinux`, le `z` final indiquant que le fichier a été compressé.
+
+### Disque mémoire initial ( Init )
+
+Il est généralement appelé `initrd.img-VERSION` et contient un système de fichiers racine minimal chargé dans un disque RAM ( d'ou `initrd` ), qui contient à son tour les outils et les modules du noyau nécessaires pour que le noyau puisse monter le système de fichiers racine proprement dit
+
+### Fichiers chargeur de démarrage
+
+Sur les systèmes avec GRUB installé, ceux-ci sont généralement rangés dans `/boot/grub` et comprennent le fichier de configuration de GRUB (`/boot/grub/grub.cfg` pour GRUB 2 ou `/boot/grub/menu.lst` dans le cas de GRUB Legacy), les modules (dans `/boot/grub/i386-pc`), les fichiers de traduction (dans `/boot/grub/locale`) et les polices (dans `/boot/grub/fonts`)
+
