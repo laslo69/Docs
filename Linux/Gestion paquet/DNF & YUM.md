@@ -2,6 +2,8 @@
 
 `dnf` dispose d’un système d’aide intégré, qui affiche des informations détaillées (comme les paramètres supplémentaires) pour chaque commande, gère les dépendances
 
+Les fichiers de configuration de `YUM` se trouvent dans `/etc/yum.conf` et les dépots dans `/etc/yum.repos.d/`
+
 ## Recherche de paquet
 
 Avant d’installer un paquet, vous devez connaître son nom. Pour ce faire, vous pouvez effectuer une recherche avec `yum search MOTIF`, où `MOTIF` est le nom du paquet recherché. Le résultat est une liste de paquets dont le nom ou le résumé contient le motif de recherche spécifié
