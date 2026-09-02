@@ -1,7 +1,7 @@
 
 Les bibliothèques partagées, également connues sous le nom shared objects sont des bouts de code compilés et réutilisables comme des fonctions ou des classes, et qui sont utilisés de manière récurrente par différents programmes
 
-- /etc/ld.so.conf.d/ : contient les fichiers *.conf
+- `/etc/ld.so.conf.d/` : contient les fichiers `*.conf`
 - /etc/ld.so.conf.d/mylib.conf : contient une ou plusieurs références vers des dossiers de librairies ( /lib/mylib)
 - le dossier ciblé contient les librairies partagé nécessaire pour le programme ( /lib/mylib -> /lib/mylib/lib1.so.1, /lib/mylib/lib2.so.1)
 
