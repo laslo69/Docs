@@ -41,8 +41,6 @@ snd_rawmidi            29394  2 snd_usbmidi_lib,snd_mpu401_uart
 ... Output Truncated
 ```
 
-***
-
 La commande `modprobe` peut être utilisée pour charger et décharger les modules du noyau
 
 Pour décharger un module et ses modules connexes tant qu’ils ne sont pas utilisés par un processus en cours, sinon il faut décharger les modules les modules enfants.
@@ -52,8 +50,6 @@ La commande `modprobe -r` doit être utilisée, par exemple, pour décharger le 
 ```bash
 modprobe -r snd-hda-intel
 ```
-
-***
 
 En utilisant le nom du module comme seul argument, la commande `modinfo` affiche une description, le fichier, l’auteur, la licence, l’identification, les dépendances et les paramètres disponibles pour le module donné
 

@@ -3,6 +3,8 @@ Upstart a été développé pour la distribution Ubuntu Linux afin de faciliter 
 
 Les scripts d’initialisation utilisés par Upstart se trouvent dans le répertoire `/etc/init/`. Les services du système peuvent être affichés avec la commande `initctl list`, qui indique également l’état actuel des services et, le cas échéant, leur PID.
 
+Le fichier `/etc/inittab` n'est plus nécessaire et est interpété, présent uniquement pour la ligne `initdefault`
+
 Le gestionnaire de services est le premier programme lancé par le noyau au cours du processus de démarrage, son PID (numéro d’identification du processus) est donc toujours `1`.
 
 ```bash
@@ -30,7 +32,7 @@ failsafe stop/waiting
 Chaque action Upstart dispose de sa propre commande dédiée. Par exemple, la commande `start` peut être utilisée pour lancer un sixième terminal virtuel :
 
 ```bash
-start tty6**
+start tty6
 ```
 
 L’état actuel d’une ressource peut être vérifié avec la commande 
@@ -48,3 +50,5 @@ Quant à l’interruption d’un service, elle se fait avec la commande `stop` 
 ```
 
 Upstart n’utilise pas le fichier `/etc/inittab` pour définir les niveaux d’exécution, par contre les commandes traditionnelles `runlevel` et `telinit` permettent toujours de vérifier les niveaux d’exécution et d’alterner entre eux.
+
+Les niveau d'exécution par défault se trouve dans `/etc/init/rc-sysinit.conf` et dans la variable `DEFAULT_RUNLEVEL`
