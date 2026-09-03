@@ -156,3 +156,4 @@ service sshd start
 - Désactiver un service au démarrage : `chkconfig [nom_du_service] off`
 - Ajouter un nouveau service à la gestion de `chkconfig` : `chkconfig --add [nom_du_service]`
 
+
