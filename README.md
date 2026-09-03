@@ -1,6 +1,6 @@
 # Documentation personnelle
 
-`:construction:` 
+🚧
 
 Ce dépôt regroupe ma documentation personnelle réalisée dans le cadre de mon apprentissage des systèmes, des réseaux et de l'administration informatique.
 
