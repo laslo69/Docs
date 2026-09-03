@@ -89,9 +89,9 @@ La commande `telinit q` devra être exécutée après chaque modification du fic
 
 `telinit` prend différent argument en charge pour savoir comment intéragir avec le fichier `/etc/inittab` si il à été modifié.
 
-- `-q` ou `-Q` indique à `init` de relire `/etc/inittab`,de recharger le code exécutable de sa configuration et actualise init en RAM
-- `-U` ou `-u` Force `init` à se ré-exécuter, remplçant son propre code en mémoire par le binaire sur le disque. Le programme `init` change de version en cours de route mais conserve son PID 1
-- `-t` envoi une commande `SIGTERM` aux processus encore en cours de fonctionnement après un délai imparti. par exemple `telinit -t 10 0` envoi un `runlevel` 0 au bout de 10 secondes aux processus.
+- `-q` ou `-Q` indique à `init` de relire `/etc/inittab`,de recharger le code exécutable de sa configuration et actualise init en RAM, si un nouveau terminal est ajouté, init ne le sauras pas tant que sa configuration ne sera par rechargé ( action type reload )
+- `-U` ou `-u` Force `init` à se ré-exécuter, remplaçant son propre code en mémoire par le binaire sur le disque. Le programme `init` change de version en cours de route mais conserve son PID 1, à utiliser après une mise à jour ledu paquet du système d'initialisation `ex sysvinit-core`( action type re-exec )
+- `-t` Lorsque vous demandez à fermer, redémarrer, ou changer de mode (ex: `telinit 0` ou `telinit 1`), `init` envoie d'abord un signal de fermeture propre (`SIGTERM`) à tous les processus, attend un instant, puis tue de force (`SIGKILL`) ceux qui ne répondent pas. Par défaut, cette attente est souvent de 3 ou 5 secondes. Par exemple `telinit -t 10 6` envoi un `runlevel 6` au bout de 10 secondes aux processus ( action type timeout )
 
 Les scripts utilisés par `init` pour configurer chaque niveau d’exécution sont rangés dans le répertoire `/etc/init.d/`
 
@@ -120,6 +120,7 @@ La première lettre peut être `S` soit `K` :
 
 - nom : indique le nom du service
 
+## Runlevel actuel
 
 Le répertoire `/etc/rc1.d/`, par exemple, comportera de nombreux liens vers des scripts réseau commençant par la lettre `K`, étant donné que le niveau d’exécution 1 est le niveau d’exécution mono-utilisateur, sans connectivité réseau
 
