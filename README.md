@@ -1,5 +1,7 @@
 # Documentation personnelle
 
+`:construction:` 
+
 Ce dépôt regroupe ma documentation personnelle réalisée dans le cadre de mon apprentissage des systèmes, des réseaux et de l'administration informatique.
 
 Les différents documents et travaux pratiques suivent principalement les programmes du CCNA et du LPIC-1.
@@ -15,6 +17,8 @@ Cette documentation est avant tout destinée à l'apprentissage et à la progres
 
 
 ## Index Linux
+
+## Rework
 
 
 
