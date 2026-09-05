@@ -1,6 +1,6 @@
 # Documentation personnelle
 
-🚧
+🚧 Dépot en cours de construction, peut être incomplet, mal ordonné, mal saisie, un rework complet est prévu mais demandera beaucoup de temps 🚧
 
 Ce dépôt regroupe ma documentation personnelle réalisée dans le cadre de mon apprentissage des systèmes, des réseaux et de l'administration informatique.
 
@@ -11,57 +11,3 @@ L'objectif est de consolider les connaissances théoriques par la pratique, de c
 Cette documentation est avant tout destinée à l'apprentissage et à la progression personnelle. Elle peut contenir des notes, des explications, des exemples de configuration, des commandes ainsi que des travaux pratiques réalisés en environnement de test.
 
 > Note : cette documentation reflète mes connaissances, recherches et expérimentations personnelles. Elle est destinée à l'apprentissage et ne doit pas être considérée comme une documentation officielle ni comme une source de référence garantissant l'exactitude des configurations ou procédures présentées.
-
-## Index Cisco
-
-
-
-## Index Linux
-
-## Rework
-
-
-
-## To-Add
-
-Ajout futur, liste non exhaustive
-
-### Cisco
-
-- Etherchannel
-- GLBP
-- HSRP
-- IPv4
-- IPv6
-- LLDP
-- OSPFv2
-- Port-Security
-- Routage statique
-- Spanning tree
-- Table routage
-- VLAN
-- VRRP
-- Routage Inter-VLAN
-- Banner MOTD
-- Gestion utilisateur local
-- Securité ligne VTY/console
-- SSH
-- Syslog
-- SNMP
-- SLAAC
-- NTP
-- ND
-- NAT
-- DHCP
-- ACL
-
-### Linux
-
-- Bibliotheque partagé
-- Gestion paquet
-- Gestion Permissions
-- Gestion Processus
-- Interaction GRUB
-- Lien
-- Montage système fichier
-- Gestion disque/partition

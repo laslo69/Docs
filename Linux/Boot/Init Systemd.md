@@ -91,7 +91,11 @@ tableau comparatif `sysv init` et `systemd`
 |    5     | runlevel5.target, graphical.target  |   GUI, multi-user   |
 |    6     |   runlevel6.target, reboot.target   |       Reboot        |
 
-Les fichiers de configuration associés à chaque unité se trouvent dans le répertoire `/lib/systemd/system/`
+Les fichiers de configuration associés à chaque unité se trouvent dans le répertoire !
+
+- `/etc/systemd/system`
+- `/run/systemd/system`
+- `/usr/lib/systemd/system`
 
 La commande `systemctl list-unit-files` affiche la liste de toutes les unités disponibles et indique si elles sont activées au démarrage du système. L’option `--type` sélectionnera uniquement les unités pour un certain type, comme dans `systemctl list-unit-files --type=service` et `systemctl list-unit-files --type=target`.
 

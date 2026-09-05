@@ -32,7 +32,7 @@ Notez que nous avons un noyau (`vmlinuz`) et des images initrd (`initrd.img`) di
 À présent, définir la partition de démarrage
 
 ```bash
-grub> set root=(hd0,msods1)
+grub> set root=(hd0,msdos1)
 ```
 
 Chargez le noyau Linux avec la commande `linux`, suivie du chemin vers le noyau et de l’option `root=` pour indiquer au noyau où se trouve le système de fichiers racine du système d’exploitation.
