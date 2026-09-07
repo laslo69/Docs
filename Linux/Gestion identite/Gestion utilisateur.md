@@ -11,6 +11,24 @@
 - `/etc/subuid`
 - `/etc/login.defs`
 
+## Voir groupes
+
+Pour voir dans quels groupes, l'utilisateur est présent
+
+```bash
+group
+ou
+id
+```
+
+la commande `group` va afficher la liste de groupe dont l'utilisateur est membre, mais uniquement le nom
+
+La commande `id` va afficher  selon les paramètres, certaines informations
+
+`id -g` affiche seulement le groupe de l'utilisateur ( seulement GID )
+`id -G` affiche tout les groupes dont l'utilisateur est membres ( seulement GID )
+`id -n` à utiliser avec `-g` ou `-G`, permet de ne donner que le nom du groupe
+
 ## Ajouter utilisateur
 
 Lorsque vous utilisez la commande `useradd`, les informations sur les utilisateurs et les groupes stockées dans les bases de données de mots de passe et de groupes sont mises à jour pour le compte utilisateur nouvellement créé et, si cela est spécifié, le répertoire personnel du nouvel utilisateur est également créé. Un groupe portant le même nom que le nouveau compte utilisateur est également créé
