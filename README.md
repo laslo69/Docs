@@ -10,5 +10,5 @@ Cette documentation est avant tout destinée à un apprentissage personnelle. El
 
 reflète mes connaissances, recherches et expérimentations personnelles. Elle est destinée à l'apprentissage et ne doit pas être considérée comme une documentation officielle ni comme une source de référence garantissant l'exactitude des configurations ou procédures présentées
 
-- [Linux](Index_linux.md)
-- [Cisco](Index_cisco.md)
+- [Linux](Linux/Index_linux.md)
+- [Cisco](Cisco/Index_cisco.md)

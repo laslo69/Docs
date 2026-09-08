@@ -36,3 +36,4 @@
 ## Permissions
 
 - [Droits standard](Linux/Gestion_permissions/Droits_standard.md)
+- [Droits etendus](Linux/Gestion_permissions/Droits_etendus.md)

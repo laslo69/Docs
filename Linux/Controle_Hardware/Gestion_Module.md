@@ -10,7 +10,7 @@ La meilleure façon d’interagir avec eux consiste à utiliser les commandes fo
 - Used by : Modules dépendants (n), n représente le nombre de dépendances
 
 ```bash
-lsmod
+#lsmod
 Module                  Size  Used by
 kvm_intel             138528  0
 kvm                   421021  1 kvm_intel

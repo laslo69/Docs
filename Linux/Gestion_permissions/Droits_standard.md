@@ -172,3 +172,11 @@ Un fichier que je veut avec les droits `644` ( soit lecture écriture/lecture/le
 |`5`|`-w-`|`-w-`|
 |`6`|`---`|`--x`|
 |`7`|`---`|`---`|
+
+Pour rendre la modification du `umask` permanent, il faut modifier le fichie `.bashrc`, descendez tout en bas du fichier et ajoutez votre règle sur une nouvelle ligne
+
+Les changements se feront au prochain redémarrage, mais si vous vouler appliquer les changements immédiatement
+
+```bash
+source ~/.bashrc
+```
