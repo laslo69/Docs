@@ -228,35 +228,3 @@ router(config)# vtp version 3
 router(config)# vtp password lab hidden
 router(config)# vtp mode server
 ```
-
-## Administration
-
-### Maintenance
-
-- Voir l’état de la configuration VTP avec la commande, show vtp status
-- Voir si les VLANs attendus existent, show vlan
-- Voir les messages VTP, show vtp counters
-- Documentation
-
-### Sécurité
-
-- Utiliser un seul serveur vtp par domaine
-- version 3 si possible
-- mot de passe vtp
-- Désactiver VTP si non utilisé
-- Forcer le mode access sur les ports utilisateurs
-
-### Dépannage
-
-Si les vlans ne redescendent pas:
-
-- Vérifier que VTP est bien configurer
-- Que les ports connectant les switch du domaine vtp soient en mode trunk
-- Port trunk soit bien en no shutdown
-
-Voir les messages de dépannage avec les commandes:
-- debug sw-vlan vtp events
-- debug sw-vlan vtp packets
-
-Vlan disparu
-- Vérifier si un switch n’a pas un numéro révision supérieur, isoler le switch

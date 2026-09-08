@@ -261,7 +261,7 @@ Number of existing VLANs                :6
 Voir le type de switchport, peux être appliqué pour toutes les interfaces ou une interface précise
 
 ```bash
-Switch# show interfaces switchport ! show interfaces switchport Fa0/1
+Switch# show interfaces switchport Fa0/1
 Name: Fa0/1
 Switchport: Enabled
 Administrative Mode: dynamic auto
@@ -303,7 +303,6 @@ Fa5/1                        notconnect   1          auto    auto  10/100BaseTX
 ```
 
 Consulter la table MAC du VLAN
-
 
 ```bash
 switch# show mac address-table vlan 1

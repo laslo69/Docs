@@ -263,35 +263,3 @@ channel-group 1 mode active
 port-channel 1
 ip address 192.168.20.1 255.255.255.0
 ```
-
-## Administration
-
-### Sécurité
-
-• Desactiver DTP
-• Storm control pour limiter multicast
-• L2, autoriser uniquement les VLAN nécessaire
-### Dépannage
-
-• show etherchannel summary : Affiche le résumé de tous les liens etherchannels et leurs états
-• show etherchannel X detail : Détails sur un etherchannel spécifique ( protocole,ports,statut)
-• show etherchannel port-channel : liste des interfaces logiques et leurs membres
-• show etherchannel load-balance : Affiche l’algorithme de load-balancing
-
-diagnostic ports :
-
-• show interfaces GigabitEthernet 0/0 etherchannel : voir si le port est membre d’un etherchannel
-• show interfaces GigabitEthernet 0/0 switchport : Voir les paramètres de switchport du lien
-
-Vérification protocole
-
-• show lacp/pagp neighbor : Voir les voisins LACP/PagP et leur statut
-• show lacp/pagp [x] internal : Détails internes sur la négociation PagP
-• show lacp counters : statistiques des paquets LACP
-
-dépannage des erreurs
-
-• show interfaces [ x ] errors : affiche les erreurs CRC, runts, glants d’une interface logique ou physique
-• show logging : affiche les logs systeme
-• debug lacp/pagp : active le débogage lacp/pagp
-• clear counters : reinitialise le compteurs d’erreurs sur les interfaces
