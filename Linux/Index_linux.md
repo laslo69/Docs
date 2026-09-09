@@ -37,3 +37,8 @@
 
 - [Droits standard](Linux/Gestion_permissions/Droits_standard.md)
 - [Droits etendus](Linux/Gestion_permissions/Droits_etendus.md)
+
+## Lien
+
+- [Lien physique](Linux/Lien/Lien_physique.md)
+- [Lien symbolique](Linux/Lien/Lien_symbolique.md)
