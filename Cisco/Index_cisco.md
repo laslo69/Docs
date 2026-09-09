@@ -10,6 +10,7 @@
 ## FHRP
 
 - [HSRP](Cisco/FHRP/HSRP.md)
+- [GLBP](Cisco/FHRP.GLBP.md)
 
 ## Routage
 

@@ -26,6 +26,15 @@
 - [DNF & YUM](Linux/Gestion_paquet/DNF&YUM.md)
 - [Zypper](Linux/Gestion_paquet/Zypper.md)
 
+## Gestion stockage
+
+### Gestion Partition
+
+- [Gestion MBR avec fdisk](Linux/Gestion_stockage/Gestion_partition/MBR_avec_fdisk.md)
+- [Gestion GPT avec gdisk](Linux/Gestion_stockage/Gestion_partition/GPT_avec_gdisk.md)
+
+### Gestion Filesystem
+
 ## Gestion identite
 
 - [Dossier squelette](Linux/Gestion_identite/Dossier_squelette.md)
