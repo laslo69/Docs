@@ -91,7 +91,7 @@ Par exemple
 /dev/Sda1  /mnt/HDD1  ext4  defaults 0 1
 ou
 UUID=dcefdf6a-2f65-4475-a299-4aa7a6b43ed4	/mnt/HDD1	ext4	defaults 0	1
-LABEL=Test /mnt/HDD1 ext4 defaults 0 2
+LABEL=Test /mnt/ ext4 defaults 0 2
 ```
 
 Pour connaitre l'UUID de la partition que l'ont veut monter automatiquement via `fstab`, la commande `lsblk`  avec le paramètre `-f` et la partition associé, permet de fournir cette information
