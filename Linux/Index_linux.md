@@ -35,12 +35,19 @@
 
 ### Gestion Filesystem
 
+- [Gerer filesystem ext](Linux/Gestion_stockage/Gestion_filesystem/Gerer_filesystem-ext)
+
+### Montage filesystem
+
+
+
 ## Gestion identite
 
 - [Dossier squelette](Linux/Gestion_identite/Dossier_squelette.md)
 - [Gestion utilisateur](Linux/Gestion_identite/Gestion_utilisateur.md)
 - [Gestion groupe](Linux/Gestion_identite/Gestion_groupe.md)
 - [Gestion password](Linux/Gestion_identite/Changer_password.md)
+- [Afficher informations](Linux/Gestion_identite/Afficher_information_identite.md)
 
 ## Permissions
 
