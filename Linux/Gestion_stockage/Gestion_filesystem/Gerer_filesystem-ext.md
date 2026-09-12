@@ -15,7 +15,7 @@ Pour créer un filesystem ext2,3 ou 4, il est possible d'utiliser 3 méthodes :
 
 - mkfs.ext4 /dev/sdx, méthode la plus simple
 - mkfs -t ext4 /dev/sdx, méthode plus générique
-- mke2fs -t ext4 /dev/sdx, ouitls historique capable de créer uniquement des extensions en format ext2, 3 ou 4
+- mke2fs -t ext4 /dev/sdx, outils historique capable de créer uniquement des extensions en format ext2, 3 ou 4
 
 La forme d’utilisation la plus simple est, pour créer un système de fichiers ext4 dans la partition `/dev/sdb1`
 

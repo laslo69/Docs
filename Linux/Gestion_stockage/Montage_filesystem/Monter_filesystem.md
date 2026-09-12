@@ -134,3 +134,20 @@ Les options de montage spécifiées dans `OPTIONS` sont une liste de paramètres
 - `suid` et `nosuid` : Autorise ou non les bits SETUID et SETGID à prendre effet.
 - `ro` et `rw` : Monte un système de fichiers en lecture seule ou en écriture.
 - `sync` et `async` : Indique si toutes les opérations d’entrées-sorties vers le système de fichiers doivent être effectuées de manière synchrone ou asynchrone. `async` est habituellement la valeur par défaut. La page de manuel de `mount` prévient que l’utilisation de `sync` sur un média avec un nombre limité de cycles d’écriture peut raccourcir la durée de vie du périphérique
+
+## Lister montage filesystem
+
+En tapant simplement `mount`, vous obtenez une liste de tous les systèmes de fichiers en cours de montage sur votre système. Cette liste peut être assez conséquente, étant donné qu’en plus des disques attachés à votre système, ce dernier contient également un certain nombre de systèmes de fichiers exécutés en mémoire et destinés à des usages divers
+
+Pour filtrer la sortie, vous pouvez utiliser le paramètre `-t` pour afficher uniquement les systèmes de fichiers du type correspondant,
+
+```bash
+mount -t ext4
+```
+
+Vous pouvez spécifier plusieurs systèmes de fichiers à la fois en les séparant par une virgule
+
+```bash
+mount -t ext4,fuseblk
+```
+
