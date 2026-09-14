@@ -36,16 +36,12 @@ Par défaut, toutes les interfaces émettent des trames CDP.
 
 Pour désactiver CDP sur une interface, le client n'émettera plus de trame CDP et n'en recevera plus via l'interface
 
+Il n'est pas possible, comme avec `LLDP`, de choisir de recevoir ou envoyer uniquement des trames `CDP`
+
 ```bash
 int fa0/0
 no cdp enable
 ```
-
-## Sécurité
-
-CDP est un protocole assez bavard qui donne des informations sur les appliances voisinses et la sienne, le problème est principalement que aucune sécurité n'est implanté avec CDP ce qui induit, que toutes les données transmisent, le sont en clair.
-
-Protocole à désactiver dans le cas ou son utilisation n'est pas nécessaire, permet aussi d'économiser un peu de CPU et bande passante
 
 ## Timer
 
@@ -97,10 +93,11 @@ Il contient des informations sur l'équipement émetteur, par exemple :
 - Device ID : nom de l'équipement (hostname)
 - Platform : modèle du matériel (ex. Catalyst 9300, ISR 4000)
 - Capabilities : fonctions disponibles :
-- - routeur
-- - switch
-- - téléphone IP
-- - bridge…
+	- routeur
+	- switch
+	- téléphone IP
+	- bridge
+	- …
 - Port ID : interface utilisée pour la connexion
 - IP Address : adresse IP de gestion
 - Software Version : version IOS/IOS-XE
@@ -123,7 +120,7 @@ Le CDP Request est un message de demande d'informations
 
 Il permet à un équipement de demander à un voisin des informations spécifiques
 
-Contrairement à l'Advertisement, il n'est généralement pas utilisé dans le fonctionnement normal de CDP
+Contrairement à l'Advertisement, il est généralement rarement utilisé dans le fonctionnement normal de CDP
 
 Il peut être utilisé dans certains scénarios internes du protocole pour demander des informations supplémentaires
 
@@ -137,10 +134,7 @@ Il fournit les informations demandées par le voisin
 
 Sur une topologie avec 3 switch en ligne
 
-```bash
-SW1 -------------- SW2 -------------- SW3
-   f0/1        f0/1   f0/2        f0/1
-```
+![cdp1](Cisco/Decouverte_voisin/CDP/illustration/cdp1.png)
 
 ### SW1
 
@@ -174,3 +168,122 @@ sw1(config)# cdp timer 30
 sw1(config)# cdp holdtime 90
 sw1(config)# cdp advertise-v2
 ```
+
+## Administration
+
+### Maintenance
+
+Pour voir l'état actuel de `CDP` et sa configuration
+
+```bash
+Switch#sh cdp
+Global CDP information:
+Sending CDP packets every 60 seconds
+Sending a holdtime value of 180 seconds
+```
+
+Possible aussi, de voir la configuration par interface avec la commande `show cdp interface <interface>`
+
+```bash
+Switch#show cdp interface fastEthernet 0/1
+FastEthernet0/1 is up, line protocol is up
+Sending CDP packets every 60 seconds
+Holdtime is 180 seconds
+```
+
+Dans le cas ou `CDP` est désactivé, un message d'erreur averti que le protocole n'est pas en cours d'utilisation
+
+`% CDP is not enabled`
+
+Plusieurs commandes peuvent être utilisé pour voir l'état actuel de la table de voisin `CDP`
+
+```bash
+Switch#sh cdp neighbors
+
+Capability Codes: R - Router, T - Trans Bridge, B - Source Route Bridge
+
+S - Switch, H - Host, I - IGMP, r - Repeater, P - Phone
+
+Device ID Local Intrfce Holdtme Capability Platform Port ID
+Switch Fas 0/1 156 S 2960 Fas 0/1
+```
+
+A noter que la commande `show cdp neighbors detail` affiche le même output que `show cdp entry *`
+
+```bash
+Switch#sh cdp neighbors detail
+
+Device ID: Switch1
+
+Entry address(es):
+
+Platform: cisco 2960, Capabilities: Switch
+Interface: FastEthernet0/1, Port ID (outgoing port): FastEthernet0/1
+Holdtime: 143
+
+Version :
+
+Cisco IOS Software, C2960 Software (C2960-LANBASEK9-M), Version 15.0(2)SE4, RELEASE SOFTWARE (fc1)
+
+Technical Support: http://www.cisco.com/techsupport
+
+Copyright (c) 1986-2013 by Cisco Systems, Inc.
+Compiled Wed 26-Jun-13 02:49 by mnguyen
+
+advertisement version: 2
+Duplex: full
+
+---------------------------
+
+Device ID: Switch2
+
+Entry address(es):
+
+Platform: cisco 2960, Capabilities: Switch
+Interface: FastEthernet0/2, Port ID (outgoing port): FastEthernet0/1
+Holdtime: 145
+
+Version :
+
+Cisco IOS Software, C2960 Software (C2960-LANBASEK9-M), Version 15.0(2)SE4, RELEASE SOFTWARE (fc1)
+
+Technical Support: http://www.cisco.com/techsupport
+
+Copyright (c) 1986-2013 by Cisco Systems, Inc.
+Compiled Wed 26-Jun-13 02:49 by mnguyen
+
+advertisement version: 2
+Duplex: full
+```
+
+Il est possible, dans le cas ou l'ont veut afficher les informations d'un voisin spécifique, de la spécifie dans la commande `show cdp entry <neighbors>`
+
+```bash
+Switch#show cdp entry Switch1
+
+Device ID: Switch1
+
+Entry address(es):
+
+Platform: cisco 2960, Capabilities: Switch
+Interface: FastEthernet0/1, Port ID (outgoing port): FastEthernet0/1
+Holdtime: 133
+
+Version :
+
+Cisco IOS Software, C2960 Software (C2960-LANBASEK9-M), Version 15.0(2)SE4, RELEASE SOFTWARE (fc1)
+
+Technical Support: http://www.cisco.com/techsupport
+
+Copyright (c) 1986-2013 by Cisco Systems, Inc.
+Compiled Wed 26-Jun-13 02:49 by mnguyen
+
+advertisement version: 2
+Duplex: full
+```
+
+### Sécurité
+
+CDP est un protocole assez bavard qui donne des informations sur les appliances voisinses et la sienne, le problème est principalement que, aucune sécurité n'est implanté avec CDP ce qui induit, que toutes les données transmisent, le sont en clair
+
+Protocole à désactiver dans le cas ou son utilisation n'est pas nécessaire, permet aussi d'économiser un peu de CPU et bande passante

@@ -2,8 +2,8 @@
 Les bibliothèques partagées, également connues sous le nom shared objects sont des bouts de code compilés et réutilisables comme des fonctions ou des classes, et qui sont utilisés de manière récurrente par différents programmes
 
 - `/etc/ld.so.conf.d/` : contient les fichiers `*.conf`
-- /etc/ld.so.conf.d/mylib.conf : contient une ou plusieurs références vers des dossiers de librairies ( /lib/mylib)
-- le dossier ciblé contient les librairies partagé nécessaire pour le programme ( /lib/mylib -> /lib/mylib/lib1.so.1, /lib/mylib/lib2.so.1)
+- `/etc/ld.so.conf.d/mylib.conf` : contient une ou plusieurs références vers des dossiers de librairies ( `/lib/mylib` )
+- le dossier ciblé contient les librairies partagé nécessaire pour le programme ( `/lib/mylib -> /lib/mylib/lib1.so.1, /lib/mylib/lib2.so.1` )
 
 Pour construire un fichier exécutable à partir du code source d’un programme, deux étapes importantes sont nécessaires. Pour commencer, le compilateur transforme le code source en code machine qui est stocké dans ce qu’on appelle des fichiers objets
 
@@ -78,7 +78,7 @@ ldd /usr/bin/git
 	/lib64/ld-linux-x86-64.so.2 (0x00007f182445b000)
 ```
 
-Si une bibliothéque est manquante, le messa `-> not found` sera affiché
+Si une bibliothéque est manquante, le message `-> not found` sera affiché
 
 De même, nous utilisons `ldd` pour rechercher les dépendances d’un objet partagé
 
@@ -144,7 +144,7 @@ cat /etc/ld.so.conf.d/x86_64-linux-gnu.conf
 /usr/lib/x86_64-linux-gnu
 ```
 
-- `/etc/ld.so.conf` pointe vers tous les fichiers .conf (*.conf) dans le dossier `/etc/ld.so.conf.d/`
+- `/etc/ld.so.conf` pointe vers tous les fichiers .conf (.conf) dans le dossier `/etc/ld.so.conf.d/`
 - Les fichiers dans le dossier `/etc/ld.so.conf.d/` pointent vers les librairies utilisé par le linker
 
 La commande `ldconfig` se charge de lire ces fichiers de configuration, de créer l’ensemble des liens symboliques ci-dessus qui aident à localiser les différentes bibliothèques et enfin de mettre à jour le fichier cache `/etc/ld.so.cache`
@@ -198,7 +198,7 @@ En complément des fichiers de configuration décrits ci-dessus, la variable d�
 
 Elle est constituée d’un ensemble de répertoires séparés par deux points (`:`) où les bibliothèques sont recherchées
 
- Par exemple, pour ajouter `/usr/local/mylib` au chemin des bibliothèques dans la session shell courante
+Par exemple, pour ajouter `/usr/local/mylib` au chemin des bibliothèques dans la session shell courante
 
 ```bash
 LD_LIBRARY_PATH=/usr/local/mylib

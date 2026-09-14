@@ -1,9 +1,7 @@
 
-EtherChannel est une technologie réseau qui permet de regrouper plusieurs liens physiques Ethernet entre deux appareils (comme des commutateurs ou des routeurs) pour former un seul lien logique
+EtherChannel est une technologie réseau qui permet de regrouper plusieurs liens physiques entre deux appareilspour former un seul lien logique
 
-EtherChannel (ou Port Channel) est une méthode qui combine plusieurs ports physiques en un seul canal logique
-
-Cela augmente la bande passante entre les appareils tout en offrant une redondance : si un lien tombe en panne, le trafic est automatiquement redirigé vers les autres liens actifs
+Permet d' augmenter la bande passante entre les appareils tout en offrant une redondance, si un lien tombe en panne le trafic est automatiquement pris en charge par les autres liens actifs
 
 ## Protocole
 
@@ -12,9 +10,9 @@ Etherchannel utilise 2 protocoles de négociation pour créer le Lien:
 - PagP ( Port Aggregation Protocol ) propriétaire Cisco, jusqu’à 8 interfaces
 - LACP ( Link Aggregation Control Protocol ) Standard ouvert 802.3ad, jusqu’à 16 interfaces ( 8 actives + 8 backup )
 
-Pour construire un lien , il faut définir les interfaces, le mode de négociation, le protocole de négociation et les liens en mode trunk, ils doivent être identique de chaque côté du lien avec la même configuration pour les interfaces.
+Pour construire un lien , il faut définir les interfaces, le mode de négociation, le protocole de négociation et les liens en mode trunk
 
-Le mode de négociation doit utilisé le même protocole ( sinon ça ne marche pas ) ou du moins, il faut définir avec le même protocole, au minimum un côté en actif et un autre en passif propre au protocole qui doit obligatoirement être le même de chaque côté du lien etherchannel.
+Le mode de négociation doit utilisé le même protocole de chaque cîté des liens, il faut définir avec le même protocole, au minimum un côté en actif et un autre en passif propre au protocole
 
 Il est possible de grouper jusqu’au maximum de 8 interfaces active + 8 passive en backup par groupe etherchannel avec le protocole LACP alors que PaGP n'en prend que 8 max
 
@@ -50,21 +48,23 @@ Il existe un mode `on` qui forme un lien etherchannel, mais n'utilise aucun mode
 
 Il est possible de configurer, comment le load-balancing doit fonctionner en utilisant différente méthode d’équilibragr de charge basé sur :
 
-- src-mac : Calcul du hash basé sur l’adresse MAC source
-- dst-mac : Calcul du hash basé sur l’adresse MAC destination
-- src-ip : Calcul du hash basé sur l’adresse IP source
-- ip-dst : Calcul du hash basé sur l’adresse IP destination
-- src-dst-mac : combine les adresses MAC sources et destination pour le hashage
-- src-dst-ip : Combine les adresse IP sources et destination pour le hashage
-- src-port : basé sur le port source
-- dst-port : Basé sur le port de destination
-- src-dst-port : Combine les ports sources et destination
+- `src-mac` : Calcul du hash basé sur l’adresse MAC source
+- `dst-mac` : Calcul du hash basé sur l’adresse MAC destination
+- `src-ip` : Calcul du hash basé sur l’adresse IP source
+- `ip-dst` : Calcul du hash basé sur l’adresse IP destination
+- `src-dst-mac` : combine les adresses MAC sources et destination pour le hashage
+- `src-dst-ip` : Combine les adresse IP sources et destination pour le hashage
+- `src-port` : basé sur le port source
+- `dst-port` : Basé sur le port de destination
+- `src-dst-port` : Combine les ports sources et destination
 
 ### Décision load-balancing
 
-Quand une trame est reçu par le commutateur, une fonction de hashage s’applique, le résultat passe par un modulo pour définir, selon le résultat, quel lien utilisé
+Quand une trame est reçu par le switch, une fonction de hashage s’applique, le résultat passe par un modulo pour définir, selon le résultat, quel lien utilisé
 
 Les exemples se basent sur 4 liens actifs en utilisant un hashage basé sur XOR simplifié, certains commutateur peuvent utiliser d’autres protocoles de hashage
+
+Les liens utilisé par le port eterchannel sont listé de 0 à 7, le résultat du modulo va permettre de, définir sur que lien, les trames provenant selon le mode de load-balancing, devront circuler.
 
 #### src-mac / dst-mac
 
@@ -115,18 +115,20 @@ Les exemples se basent sur 4 liens actifs en utilisant un hashage basé sur XOR 
 Les ports Etherchannel passent par différent status durant l’envoi d’information, la collecte, contrôle et synchronisation des informations pour créer le lien port-channel
 
 - Individual : Port non agrégé (état initial)
-- Negotiating : Échange de PDU PAgP/LACP en cours
+- Negotiating : Échange de BPDU PAgP/LACP en cours
 - Bundle : Port ajouté au Port-Channel (canal formé)
 - Hot Standby : Port de secours (si le nombre maximal de liens est atteint)
-- Suspended : Port inactif (incompatibilité de configuration)
+- Suspended : Port inactif ( incompatibilité de configuration )
 
 ## Etherchannel L2
 
-Etherchannel permet de laisser passer du traffic de couche 2, cependant il n'est pas capable nativement, de transmettre des trames 802.1q avec tag.
+Etherchannel permet de transmettre du traffic de couche 2, cependant il n'est pas capable nativement, de transmettre des trames 802.1q avec tag.
 
 Dans le cas d’utilisation de VLAN avec un port-channel, il faut dans un premier temps mettre les interfaces membres du port-channel en trunk et autoriser les VLANs voulu à transmettre dessus
 
 Ensuite, mettre le port channel en mode trunk et autoriser les VLANs voulu à transmettre dessus
+
+Sur du Cisco, si la modification est apporté directement sur le port-channel, les liens membres du port channel héritent de la configuration, cependant, la modification n'apparait pas dans la running-config des ports membres du port-channel. Il est donc préférable de le configurer manuellement pour que la configuration soit bien explicite dans la running-config
 
 ## Etherchannel L3
 
@@ -178,7 +180,6 @@ Il y’a 4 type de message PagP:
 
 ### Processus négociation PaGP
 
-
 Pagp va émettre un message PagP Offer à partir de chaque interface membres du groupe etherchannel à son voisin, en lui fournissant certaines informations à partir l’adresse MAC de multicast 0100.0ccc.cccc
 
 Le voisin va répondre en émettant une réponse PagP Response sur la MAC 0100.0ccc.cccc en remplissant les champs demandé par le voisin pour vérifier si, les réglages des interfaces sont identiques ou non et pouvoir former une adjacence ou non.
@@ -191,29 +192,25 @@ Lorsque un lien est ajouté, retiré ou modifié, un message PagP Flush est émi
 
 ## Configuration Cisco
 
-### Création Etherchannel
-
 Pour créer un lien etherchannel, il faut d'abord sélectionner les interfaces voulu
 
 ```bash
 interface range fastethernet 0/1-4
 ```
 
-### Protocole Etherchannel
-
-Pour appliquer un protocole
+Ensuite, appliquer un protocole
 
 ```bash
 channel-protocole lacp | pagp
 ```
 
-### Formation groupe
-
-Pour créer le lien
+Ensuite, définir le mode de négociation
 
 ```bash
 channel-groupe 1 mode [active|desirable|passive|auto]
 ```
+
+Une fois ces paramètres validé, le lien etherchannel `Port-channel 1` est crée
 
 ### Etherchannel L2
 
@@ -262,4 +259,197 @@ channel-protocol lacp
 channel-group 1 mode active
 port-channel 1
 ip address 192.168.20.1 255.255.255.0
+```
+
+## Configuration
+
+
+![etherchannel1](Cisco/Etherchannel/illustration/etherchannel1.png)
+
+### Configuration L2
+
+#### PC0
+
+```bash
+ip 192.168.10.10/24
+vlan 10
+```
+
+#### PC1
+
+```bash
+ip 192.168.10.11/24
+vlan 10
+```
+
+#### SW1
+
+```bash
+en
+conf t
+hostname SW1
+vlan 10
+vlan 20
+exit
+int fa0/4
+switchport mode access
+switchport access vlan 10
+int range fa0/1-3
+switchport mode trunk
+switchport trunk allowed vlan 1,10,20
+switchport trunk native vlan 1
+channel-protocol pagp
+channel-group 1 mode desirable
+exit
+int po1
+switchport mode trunk
+switchport trunk allowed vlan 1,10,20
+switchport trunk native vlan 1
+end
+wr
+```
+
+#### SW2
+
+```bash
+en
+conf t
+hostname SW2
+vlan 10
+vlan 20
+exit
+switchport mode access
+switchport access vlan 10
+int range fa0/1-3
+switchport mode trunk
+switchport trunk allowed vlan 1,10,20
+switchport trunk native vlan 1
+channel-protocol pagp
+channel-group 1 mode desirable
+exit
+int po1
+switchport mode trunk
+switchport trunk allowed vlan 1,10,20
+switchport trunk native vlan 1
+end
+wr
+```
+
+### Configuration L3
+
+![etherchannel2](Cisco/Etherchannel/illustration/etherchannel1.png)
+
+#### PC0
+
+```bash
+ip 192.168.10.10/24
+gateway 192.168.10.1
+```
+
+#### PC1
+
+```bash
+ip 192.168.20.10/24
+gateway 192.168.20.1
+```
+
+#### SW1
+
+```bash
+int fa0/4
+no switchport
+ip address 192.168.10.1 255.255.255.0
+int range fa0/1-3
+no switchport
+channel-protocole pagp
+channel-group 1 mode desirable
+int po1
+ip address 192.168.0.1 255.255.255.0
+exit
+ip routing
+ip route 192.168.20.0 255.255.255.0 192.168.0.2
+exit
+port-channel load-balance src-dst-ip
+wr
+```
+
+#### SW2
+
+```bash
+int fa0/4
+no switchport
+ip address 192.168.20.1 255.255.255.0
+int range fa0/1-3
+no switchport
+channel-protocole pagp
+channel-group 1 mode desirable
+int po1
+ip address 192.168.0.2 255.255.255.0
+exit
+ip routing
+port-channel load-balance src-dst-ip
+ip route 192.168.10.0 255.255.255.0 192.168.0.1
+end
+wr
+```
+
+## Administration
+
+### Maintenance
+
+Voir la configuration d'etherchannel, permet de lister l'ensemble des groupes etherchannel, la couche de travail ( L2 ou L3 ), le nombre de ports dans le lien et le nombre de liens maximum autorisé, protocole utilisé
+
+```bash
+SW1# show etherchannel
+
+Channel-group listing:
+----------------------
+Group: 1
+----------
+Group state = L3
+Ports: 3 Maxports = 8
+Port-channels: 1 Max Portchannels = 1
+Protocol: PAgP
+```
+
+La commande `show etherchannel summary` donne un résultat plus intéressant, sur l'état du lien
+
+Voir par exemple, si le lien etherchannel est en L2 ( S - Layer2) ou L3 ( R - Layer3 ), mais aussi l'état des ports membres de l'etherchannel
+
+```bash
+SW1#show etherchannel summary
+
+Flags: D - down P - in port-channel
+I - stand-alone s - suspended
+H - Hot-standby (LACP only)
+R - Layer3 S - Layer2
+U - in use f - failed to allocate aggregator
+u - unsuitable for bundling
+w - waiting to be aggregated
+d - default port
+
+Number of channel-groups in use: 1
+
+Number of aggregators: 1
+
+Group Port-channel Protocol Ports
+
+------+-------------+-----------+----------------------------------------------
+
+1 Po1(RU) PAgP Fa0/1(P) Fa0/2(P) Fa0/3(P)
+```
+
+`show etherchannel load-balance` permet de voir si, un mode de load-balancing est configuré et quel mode de load-balancing est utilisé
+
+```bash
+SW1# show etherchannel load-balance
+
+EtherChannel Load-Balancing Configuration:
+	src-dst-ip
+
+EtherChannel Load-Balancing Addresses Used Per-Protocol:
+
+Non-IP: Source XOR Destination MAC address
+	IPv4: Source XOR Destination IP address
+	IPv6: Source XOR Destination IP address
 ```

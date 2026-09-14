@@ -48,7 +48,7 @@ Si appellé avec la commande `mkfs -t`
 
 ## Redimensionner filesystem
 
-Pour redimensionner un système de fichiers `ext4` sous Linux, on utilise l'outil `resize2fs` associé à la modification de la partition
+Pour redimensionner un système de fichiers `ext4` sous Linux, on utilise l'outil `resize2fs` associé à la modification de la partition et `e2fsck` dans le cas d'une réduction de filesystem
 
 ### Augmenter un filesystem
 
@@ -72,10 +72,14 @@ il faut donc démonter le filesystem avec la command `umount`
 
 ensuite, faire un contrôle du filesystem et ensuite réduire la taille occupé par le filesystem
 
+par exemple, réduire le filesystem à 10Go
+
 ```bash
 e2fsck -f /dev/sdb1
 resize2fs /dev/vdb1 10G
 ```
+
+Bien penser à réduire la taille de la partition avec `fdisk` ou `gdisk`
 
 ### Paramètre resize2fs
 
