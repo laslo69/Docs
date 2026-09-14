@@ -2,7 +2,6 @@
 ## Decouverte voisin
 
 - [CDP](Cisco/Decouverte_voisin/CDP/CDP.md)
-- [Configuration CDP](Cisco/Decouverte_voisin/CDP/CDP_config.md)
 
 ## Etherchannel
 
