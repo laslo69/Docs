@@ -3,22 +3,22 @@ Tout comme pour la gestion des utilisateurs, vous pouvez ajouter, modifier et su
 
 ## Créer groupe
 
-`groupadd`
+La création d'un groupe se fait avec la commande `groupadd`
 
-`-g, --gid` : défini un GID de groupe au moment de la création
-`-r, --system` crée un groupe systeme
-`-U, --users` permet d'ajouter des utilisateurs au groupe au moment de sa création
+- `-g, --gid` : défini un GID de groupe au moment de la création
+- `-r, --system` crée un groupe systeme
+- `-U, --users` permet d'ajouter des utilisateurs au groupe au moment de sa création
 
 ## Modifier groupe
 
-`groupmod`
+Pour modifier un groupe, command `groupmod`
 
-`-a; --append` ajoute un utilisateur à une groups, à utiliser avec `-U`
-`-g, --gid` modifie le GID
-`-n, --new-name` renomme le groupe
+- `-a; --append` ajoute un utilisateur à une groups, à utiliser avec `-U`
+- `-g, --gid` modifie le GID
+- `-n, --new-name` renomme le groupe
 
 ## Supprimer groupe
 
-`groupdel`
+`groupdel` permet la suppression d'un groupe
 
 `-f, --force` forcer la suppression du groupe

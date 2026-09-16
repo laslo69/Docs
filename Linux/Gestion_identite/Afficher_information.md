@@ -157,6 +157,7 @@ root@debian:~# id
 uid=0(root) gid=0(root) groupes=0(root)
 root@debian:~# 
 ```
+
 ## Voir les membres d'un groupe spécifique
 
 Après avoir fait la commande `chmod -aG test alex`
@@ -165,3 +166,4 @@ Après avoir fait la commande `chmod -aG test alex`
 root@debian:~# getent group alex 
 alex:x:1000:test
 ```
+
