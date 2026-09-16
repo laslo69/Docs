@@ -264,7 +264,7 @@ ip address 192.168.20.1 255.255.255.0
 ## Configuration
 
 
-![etherchannel1](Cisco/Etherchannel/illustration/etherchannel1.png)
+![etherchannel1](/Cisco/Etherchannel/illustration/etherchannel1.png)
 
 ### Configuration L2
 

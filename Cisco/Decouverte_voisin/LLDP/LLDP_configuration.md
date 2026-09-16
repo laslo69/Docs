@@ -1,5 +1,5 @@
 
-![lldp1](Cisco/Decouverte_voisin/LLDP/illustration/lldp1.png)
+![lldp1](/Cisco/Decouverte_voisin/LLDP/illustration/lldp1.png)
 
 ## SW1
 

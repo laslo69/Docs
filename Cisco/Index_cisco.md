@@ -35,7 +35,4 @@
 ## VLAN
 
 - [VLAN](/Cisco/VLAN/VLAN/VLAN.md)
-
-## VTP
-
 - [VTP](/Cisco/VLAN/VTP/VTP.md)
