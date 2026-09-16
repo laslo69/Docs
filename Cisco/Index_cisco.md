@@ -1,7 +1,15 @@
 
 ## Decouverte voisin
 
-- [CDP](Cisco/Decouverte_voisin/CDP/CDP.md)
+### CDP
+
+- [CDP](/Cisco/Decouverte_voisin/CDP/CDP.md)
+- [Configuration CDP](/Cisco/Decouverte_voisin/CDP/CDP_configuration.md)
+
+### LLDP
+
+- [LLDP](/Cisco/Decouverte_voisin/LLDP/LLDP.md)
+- [Configuration LLDP](/Cisco/Decouverte_voisin/LLDP/LLDP_configuration.md)
 
 ## Etherchannel
 
@@ -9,25 +17,25 @@
 
 ## FHRP
 
-- [HSRP](Cisco/FHRP/HSRP/HSRP.md)
-- [GLBP](Cisco/FHRP.GLBP.md)
+- [HSRP](/Cisco/FHRP/HSRP/HSRP.md)
+- [GLBP](/Cisco/FHRP.GLBP.md)
 
 ## Routage
 
 ### Table routage
 
-- [Table routage IPv4](Cisco/Routage/Table_routage/Table_routage_IPv4.md)
-- [Table routage IPv6](Cisco/Routage/Table_routage/Table_routage_IPv6.md)
+- [Table routage IPv4](/Cisco/Routage/Table_routage/Table_routage_IPv4.md)
+- [Table routage IPv6](/Cisco/Routage/Table_routage/Table_routage_IPv6.md)
 
 ### Statique
 
-- [Routage Statique IPv4](Cisco/Routage/Statique/Routage_Statique_IPv4.md)
-- [Routage Statique IPv6](Cisco/Routage/Statique/Routage_Statique_IPv6.md)
+- [Routage Statique IPv4](/Cisco/Routage/Statique/Routage_Statique_IPv4.md)
+- [Routage Statique IPv6](/Cisco/Routage/Statique/Routage_Statique_IPv6.md)
 
 ## VLAN
 
-- [VLAN](Cisco/VLAN/VLAN.md)
+- [VLAN](/Cisco/VLAN/VLAN/VLAN.md)
 
 ## VTP
 
-- [VTP](Cisco/VTP/VTP.md)
+- [VTP](/Cisco/VLAN/VTP/VTP.md)

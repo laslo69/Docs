@@ -1,7 +1,5 @@
 
-CDP est un protocole de couche 2, de découverte de voisin propriétaire cisco et activé par défaut, qui permet de renseigner sur l'appliance voisine de ses paramètres, activé par défaut
-
-CDP peut être utile pour s'aider à se repérer dans le réseau mais reste une faille de sécurité car, utilisable pour faire du mapping réseau
+CDP (Cisco Discovery Protocol) est un protocole propriétaire de couche 2 développé par Cisco. Il permet à un équipement Cisco de découvrir les équipements Cisco directement connectés et d'obtenir certaines informations les concernant. CDP est activé par défaut sur les équipements Cisco compatibles
 
 Concrètement, il permet de voir :
 
@@ -74,8 +72,6 @@ Pour modifier le Holdtime:
 
 Le contenu de la trame est identique pour chaque type de message CDP, seulement son contenu change.
 
-CDP est encapsulé dans une trame 802.1q
-
 Les messages CDP Request et CDP response sont 2 messages peu courant, du fait que chaque voisin annonce sa propre configuration
 
 Les informations sont transmit dans un en tête `CDP TLV` qui correspond à un type : Type-Length-Valeur
@@ -129,45 +125,6 @@ Il peut être utilisé dans certains scénarios internes du protocole pour deman
 Le CDP Response est la réponse envoyée après une demande CDP Request
 
 Il fournit les informations demandées par le voisin
-
-## Configuration
-
-Sur une topologie avec 3 switch en ligne
-
-![cdp1](Cisco/Decouverte_voisin/CDP/illustration/cdp1.png)
-
-### SW1
-
-```rust
-sw1(config)# int range fa0/2-24
-sw1(config-if)# no cdp enable
-sw1(config-if)# exit
-sw1(config)# cdp timer 30
-sw1(config)# cdp holdtime 90
-sw1(config)# cdp advertise-v2
-```
-
-## SW2
-
-```rust
-sw1(config)# int range fa3/2-24
-sw1(config-if)# no cdp enable
-sw1(config-if)# exit
-sw1(config)# cdp timer 30
-sw1(config)# cdp holdtime 90
-sw1(config)# cdp advertise-v2
-```
-
-### SW3
-
-```rust
-sw1(config)# int range fa0/2-24
-sw1(config-if)# no cdp enable
-sw1(config-if)# exit
-sw1(config)# cdp timer 30
-sw1(config)# cdp holdtime 90
-sw1(config)# cdp advertise-v2
-```
 
 ## Administration
 
@@ -284,6 +241,6 @@ Duplex: full
 
 ### Sécurité
 
-CDP est un protocole assez bavard qui donne des informations sur les appliances voisinses et la sienne, le problème est principalement que, aucune sécurité n'est implanté avec CDP ce qui induit, que toutes les données transmisent, le sont en clair
+CDP transmet des informations permettant d'identifier et de caractériser l'équipement. Ces informations ne sont pas chiffrées. Sur un réseau où CDP n'est pas nécessaire, il est donc recommandé de le désactiver sur les interfaces concernées afin de limiter les informations exposées
 
 Protocole à désactiver dans le cas ou son utilisation n'est pas nécessaire, permet aussi d'économiser un peu de CPU et bande passante
