@@ -1,13 +1,12 @@
 
 ## Boot
 
-- [Boot](Linux/Boot/Boot.md)
+- [Boot](/Linux/Boot/Boot.md)
 - [Bootloader](Linux/Boot/Bootloader.md)
 - [GRUB legacy](Linux/Boot/GRUB_Legacy.md)
 - [GRUB 2](Linux/Boot/GRUB2.md)
 - [Systemd](Linux/Boot/Init_Systemd.md)
 - [SysV init](Linux/Boot/Init_SysV.md)
-- [Upstart](Linux/Boot/Init_Upstart.md)
 - [Inspection initialisation](Linux/Boot/Inspection_initialisation.md)
 - [Reboot & Stop](Linux/Boot/Reboot&stop.md)
 - [Multi-boot](Linux/Boot/Multi-boot.md)
@@ -35,7 +34,7 @@
 
 ### Gestion Filesystem
 
-- [Gerer filesystem ext](Linux/Gestion_stockage/Gestion_filesystem/Gerer_filesystem-ext)
+- [Gerer filesystem ext](Linux/Gestion_stockage/Gestion_filesystem/Gerer_filesystem-ext.md)
 
 ### Montage filesystem
 
