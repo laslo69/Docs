@@ -13,9 +13,9 @@
 
 ## Controle hardware
 
-- [Inspection PCI](Linux/Controle_hardware/Inspection_PCI.md)
-- [Inspection USB](Linux/Controle_hardware/Inspection_USB.md)
-- [Gestion module](Linux/Controle_hardware/Gestion_Module.md)
+- [Inspection PCI](/Linux/Controle_hardware/Inspection_PCI.md)
+- [Inspection USB](/Linux/Controle_hardware/Inspection_USB.md)
+- [Gestion module](/Linux/Controle_hardware/Gestion_Module.md)
 
 ## Gestion paquet
 
@@ -43,8 +43,8 @@
 
 - [Gestion utilisateur](/Linux/Gestion_identite/Gestion_utilisateur.md)
 - [Gestion groupe](/Linux/Gestion_identite/Gestion_groupe.md)
-- [Gestion password](Linux/Gestion_identite/Gestion_password.md)
-- [Afficher informations](Linux/Gestion_identite/Afficher_information.md)
+- [Gestion password](/Linux/Gestion_identite/Gestion_password.md)
+- [Afficher informations](/Linux/Gestion_identite/Afficher_information.md)
 
 ## Permissions
 
