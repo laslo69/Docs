@@ -13,7 +13,7 @@
 
 ## Controle hardware
 
-- [Inspection PCI](Linux/Controle_hardware/Inspection_bus-PCI.md)
+- [Inspection PCI](Linux/Controle_hardware/Inspection_PCI.md)
 - [Inspection USB](Linux/Controle_hardware/Inspection_USB.md)
 - [Gestion module](Linux/Controle_hardware/Gestion_Module.md)
 
@@ -41,7 +41,6 @@
 
 ## Gestion identite
 
-- [Dossier squelette](/Linux/Gestion_identite/Dossier_squelette.md)
 - [Gestion utilisateur](/Linux/Gestion_identite/Gestion_utilisateur.md)
 - [Gestion groupe](/Linux/Gestion_identite/Gestion_groupe.md)
 - [Gestion password](Linux/Gestion_identite/Gestion_password.md)
