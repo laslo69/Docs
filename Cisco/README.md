@@ -20,7 +20,7 @@
 ## First Hope Redundancy Protocol
 
 - [HSRP](/Cisco/FHRP/HSRP/HSRP.md)
-- [GLBP](/Cisco/FHRP.GLBP.md)
+- [GLBP](/Cisco/FHRP/GLBP/GLBP.md)
 
 ## Port-security
 
