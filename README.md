@@ -11,17 +11,19 @@ Les différents documents et travaux pratiques suivent principalement les progra
 
 ## TO-DO
 
+Liste non-exhaustive
+
 ### Cisco
 
 #### lab
 
-- Etherchannel
 - GLBP
 - HSRP
 - Port-security
 - Routage statique
 - VLAN
 - VTP
+- DHCPv4
 
 #### Futur ajout
 
@@ -30,7 +32,6 @@ Les différents documents et travaux pratiques suivent principalement les progra
 - Routage inter-vlan
 - NTP
 - VRRP
-- DHCP
 - DHCPv6
 - NAT
 - ACL

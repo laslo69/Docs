@@ -1,6 +1,4 @@
 
-## Configuration
-
 ```bash
 Switch-L3
 vlan 10

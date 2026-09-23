@@ -1,6 +1,3 @@
-
-## Configuration
-
 Sur une topologie avec 3 switch
 
 ![cdp1](/Cisco/Decouverte_voisin/CDP/illustration/cdp1.png)

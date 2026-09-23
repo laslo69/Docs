@@ -7,11 +7,7 @@ Lorsqu’un hôte envoie des paquets, il transit toujours par l’adresse IP vir
 
 HSRP fonctionne en attribuant une priorité à chaque routeur du groupe. Il est possible d’activer la préemption pour permettre à un routeur plus prioritaire de reprendre son rôle dès qu’il est de nouveau en ligne. Le protocole envoie des messages Hello toutes les 3 secondes et considère un routeur inactif après 10 secondes sans nouvelles
 
-C’est une solution simple, fiable, mais limitée aux équipements Cisco et ne propose pas de répartition de charge
-
 HSRP ipv4 ne peut pas être utilisé en même temps qu'un processus HSRP ipv6
-
-HSRPv2 n'est pas interopérable avec HSRPv1
 
 ## Version
 
@@ -34,6 +30,8 @@ HSRPv2
 - Groupe 0 au groupe 4095
 - Introduit un champ pour le numéro de VLAN dans le paquet, ce qui permet d’éviter les ambiguïtés dans les configurations où plusieurs sous-interfaces d’un même routeur physique peuvent être des routeurs virtuels actifs pour différents groupes HSRP.
 - Support authentification, supporte aussi MD5
+
+HSRPv2 n'est pas interopérable avec HSRPv1
 
 Pour choisir la version
 
