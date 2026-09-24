@@ -8,9 +8,9 @@
 
 ## DHCP
 
-- [DHCP](Cisco/DHCP/DHCP.md)
-- [DHCP relay](Cisco/DHCP/DHCP_Relay.md)
-- [DHCP sécurité](Cisco/DHCP/DHCP_Securite.md)
+- [DHCP](/Cisco/DHCP/DHCP.md)
+- [DHCP relay](/Cisco/DHCP/DHCP_Relay.md)
+- [DHCP sécurité](/Cisco/DHCP/DHCP_Securite.md)
 
 ## Etherchannel
 
