@@ -20,7 +20,7 @@ site :
 - [Finger in the net](https://www.fingerinthenet.com/)
 - [Study CCNA](https://study-ccna.com/about/)
 - [Study CCNP](https://study-ccnp.com/)
-- [Cisco made https://www.ciscomadesimple.be/simple](https://www.ciscomadesimple.be/)
+- [Cisco made simple](https://www.ciscomadesimple.be/)
 - [U Cisco](https://u.cisco.com/tutorials)
 - [Network lab](https://www.networklab.fr/)
 - [CCIE Pursuit](https://cciepursuit.wordpress.com/)
