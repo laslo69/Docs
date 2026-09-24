@@ -9,11 +9,11 @@ Ce dépôt regroupe ma documentation personnelle réalisé dans le cadre de mon 
 
 Les différents documents et travaux pratiques suivent différentes sources
 
-Cisco : 
+**Cisco** : 
 
 site :
 
-- [CCNA v1.1.](https://learningcontent.cisco.com/documents/marketing/exam-topics/200-301-CCNA-v1.1.pdf)
+- [Programme CCNA v1.1.](https://learningcontent.cisco.com/documents/marketing/exam-topics/200-301-CCNA-v1.1.pdf)
 - [Goffinet - cisco](https://cisco.goffinet.org/ccna/)
 - [My CCIE journey](https://journey2theccie.wordpress.com/)
 - [Reussir son CCNA](https://reussirsonccna.fr/)
@@ -32,7 +32,7 @@ livre :
 - Documentation Cisco
 - Beaucoup de PDF sujets divers
 
-Linux :
+**Linux** :
 
 site :
 
@@ -62,6 +62,7 @@ Liste non-exhaustive
 #### lab
 
 - GLBP
+- DHCP
 - HSRP
 - Port-security
 - Routage statique
@@ -71,7 +72,7 @@ Liste non-exhaustive
 
 #### Futur ajout
 
-- OSPF
+- OSPF + ajout schema
 - Spanning-tree
 - Routage inter-vlan
 - NTP
