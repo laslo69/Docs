@@ -76,14 +76,9 @@ Liste non-exhaustive
 - Routage inter-vlan
 - NTP
 - VRRP
-- DHCPv6
 - NAT
 - ACL
 - SSH
-- IPv4/v6
-- SLAAC
-- DTP
-- MOTD
 
 ### Linux
 
