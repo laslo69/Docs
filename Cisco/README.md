@@ -31,8 +31,8 @@
 
 ### Lecture Table routage
 
-- [Table routage IPv4](Cisco/Routage/Table_routage/Table_routage_IPv4.md)
-- [Table routage IPv6](Cisco/Routage/Table_routage/Table_routage_IPv6.md)
+- [Table routage IPv4](/Cisco/Routage/Table_routage/Table_routage_IPv4.md)
+- [Table routage IPv6](/Cisco/Routage/Table_routage/Table_routage_IPv6.md)
 
 ### Routage Statique
 
