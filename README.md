@@ -72,7 +72,7 @@ Liste non-exhaustive
 
 #### Futur ajout
 
-- OSPF + ajout schema
+- OSPF ( Ajout virtual-link, zone, LSA type, load-balancing, summarization, redistribution route )
 - Spanning-tree
 - Routage inter-vlan
 - NTP

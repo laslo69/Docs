@@ -29,7 +29,7 @@ Il est possible d'ajouter des protocoles à autoriser dans le forward via DHCP r
 
 Structure de l'option 82 est une sorte de "conteneur" constitué de plusieurs sous-options, ou `i` représente une sous-option, conformément à la RFC 3046:
 
-```rust
+```bash
  Code   Len    Agent  Information-Field
 +------+------+------+------+------+------+--...-+------+
 |  82  |   N  |  i1  |  i2  |  i3  |  i4  |      |  iN  |
@@ -38,7 +38,7 @@ Structure de l'option 82 est une sorte de "conteneur" constitué de plusieurs so
 
 Le champ Agent-information est constitué de tuples en sous-options, ou "S" et "I" représente les valeurs pour chaque sous-options, les constructeurs peuvent potentiellement ajouter des octets mais la logique reste la même:
 
-```rust
+```bash
 DHCP Agent          Sub-Option Description
 
 Sub-option Code
@@ -92,7 +92,7 @@ Les Sub-Options suivent le format
 - Len = n : Longueur (en octets) de la valeur du Circuit ID (ex: n=2 pour un numéro de port sur 2 octets)
 - s1, s2... : Valeur brute du Circuit ID (ex: 0x00 0x05 pour le port 5)
 
-```rust
+```bash
 SubOpt   Len     Circuit ID
 +------+------+------+------+------+------+------+------+--
 |  1   |   n  |  s1  |  s2  |  s3  |  s4  |  s5  |  s6  | ...
@@ -101,7 +101,7 @@ SubOpt   Len     Circuit ID
 
 Exemple de Circuit-ID
 
-```rust
+```bash
 Circuit ID (Suboption 1)
 
 Format : [1][Length][Data]
@@ -127,7 +127,7 @@ Le champ Remote-ID peut être:
 
 La structure est sensiblement la même que le "circuit-id", la valeur SubOpt est égale à 2, et R1,Rn correspond à la valeur du remote-id
 
-```rust
+```bash
  SubOpt  Len     Agent Remote ID
 +------+------+------+------+------+------+------+------+----+
 |  2   |   n  |  r1  |  r2  |  r3  |  r4  |  r5  |  r6  | rN |
@@ -136,7 +136,7 @@ La structure est sensiblement la même que le "circuit-id", la valeur SubOpt est
 
 Exemple de Circuit-ID
 
-```rust
+```bash
 Remote ID (Suboption 2)
 
 Format : [2][Length][Data]

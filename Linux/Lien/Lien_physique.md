@@ -11,6 +11,8 @@ La commande pour créer un lien physique sous Linux est `ln`
 
 La cible doit déjà exister (c’est le fichier vers lequel le lien pointera), et si la cible n’est pas dans le répertoire courant, ou si vous voulez créer le lien ailleurs, vous devez impérativement spécifier le chemin complet vers ce fichier
 
+syntaxe `ln (original file path) (new file path)
+
 ```bash
 ln target.txt /home/carol/Documents/hardlink
 ```

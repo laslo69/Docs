@@ -121,13 +121,13 @@ no lldp tlv-select system-name
 
 Afficher la configuration LLDP
 
-```rust
+```bash
 show lldp
 ```
 
 Afficher les voisins LLDP, en ajoutant le paramètre `detail`, plus d'informations sont disponibles, similaire à `show lldp entry *`
 
-```rust
+```bash
 Switch#sh lldp neighbors 
 Capability codes:
     (R) Router, (B) Bridge, (T) Telephone, (C) DOCSIS Cable Device
@@ -138,7 +138,7 @@ Switch              Fa0/1          120        B               Fa0/1
 
 Voir le nombre de trames comptabilisé
 
-```rust
+```bash
 show lldp traffic
 !
 LLDP traffic statistics:
@@ -153,7 +153,7 @@ LLDP traffic statistics:
 
 Afficher l'état LLDP sur une interface
 
-```rust
+```bash
 show lldp interface fa0/0
 !
 FastEthernet0/0:
@@ -169,13 +169,13 @@ LLDP souffre du même probléme de sécurité que CDP, il n'y a pas d'authentifi
 
 Désactiver LLDP sur les interfaces non utilisés ou concerné
 
-```rust
+```bash
 switch(config-if)# no lldp transmit
 switch(config-if)# no lldp receive
 ```
 
 Désactiver les TLV sensibles
 
-```rust
+```bash
 switch(config)# no lldp tlv <tlv_name>
 ```

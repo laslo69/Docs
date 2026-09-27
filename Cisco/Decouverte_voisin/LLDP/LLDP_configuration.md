@@ -7,7 +7,7 @@
 - Désactiver Transmit/Receive sur les interfaces fa0/2 à fa0/24
 - Activation explicite de Transmit/Receive sur fa0/1
 
-```rust
+```bash
 SW1(config)# lldp run
 SW1(config)# lldp timer 10
 SW1(config)# lldp holdtime 60
@@ -27,7 +27,7 @@ SW1(config-if)#exit
 - Désactiver Transmit/Receive sur les interfaces fa0/2 à fa0/24
 - Activation explicite de Transmit/Receive sur fa0/1 et fa0/2
 
-```rust
+```bash
 SW2(config)# lldp run
 SW2(config)# lldp timer 10
 SW2(config)# lldp holdtime 60
@@ -52,7 +52,7 @@ SW2(config-if)#exit
 - Activation explicite de Transmit sur fa0/1
 - Désactivation receive sur fa0/1
 
-```rust
+```bash
 SW3(config)# lldp run
 SW3(config)# lldp timer 10
 SW3(config)# lldp holdtime 60

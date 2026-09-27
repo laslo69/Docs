@@ -177,7 +177,7 @@ Description  : Mozilla Firefox is an open-source web browser, designed
 
 ## Gérer les dépôts DNF
 
-Tout comme `yum` et `zypper`, `dnf` fonctionne avec des dépôts de logiciels (_repos_). Chaque distribution dispose d’une liste de dépôts par défaut, et les administrateurs peuvent ajouter ou supprimer des dépôts en cas de besoin
+Tout comme `yum`, `dnf` fonctionne avec des dépôts de logiciels (_repos_). Chaque distribution dispose d’une liste de dépôts par défaut, et les administrateurs peuvent ajouter ou supprimer des dépôts en cas de besoin
 
 Pour obtenir une liste de tous les dépôts disponibles, utilisez `dnf repolist`. Pour répertorier uniquement les dépôts activés, ajoutez l’option `--enabled`, et pour afficher uniquement les dépôts désactivés, utilisez l’option `--disabled`
 

@@ -9,59 +9,6 @@ Les échanges se font par multicast, notamment sur les adresses 224.0.0.5 ( AllS
 
 OSPF intègre son propre mécanisme d'authentification (en clair, MD5 ou SHA selon la version) et une prise en charge native d'IPv6 via OSPFv3
 
-## Role dans l'Autonomous System
-
-### Backbone Router ( BR )
-
-- Routeur qui à une interface connecté à l’area  0 ( Backbone ), zone principale et obligatoire, sert à transmettre le traffic dans les area OSPF.
-- Participe à la diffusion des informations de routage entre les area
-
-### Internal Routeur ( IR )
-
-- Un IR remplit des fonctions au sein d’une zone (area) uniquement, autre que la zone Backbone
-- Sa fonction primordiale est d’entretenir à jour avec tous les réseaux de son area, sa link-state database qui est identique sur chaque IR
-- Un IR va maintenir sa Link State Database à jour pour son area autre que la backbone uniquement et va calculer le côut des routes en utilisant l’algorithme SPF
-- Pour transmettre les informations à une autre zone, il est nécessaire de passer par un ABR
-- Un IR est un routeur membre d'une zone, autre que l'area 0
-- Il renvoie toute information aux autres routeurs de son area, le routage ou Le flooding des autres zones requiert L’intervention d’un ABR
-
-### Area Border Router ( ABR )
-
-- Un ABR est un routeur qui connecte au moins 2 zones, dont l’area 0, il possède et maintient à jour autant de Link State Database qu’il y’a de zones.
-- Il peut injecter une route par défaut dans les area autre que la Backbone si nécessaire et permet la communication entre les aires en annonçant les routes inter-area
-- Chacune de ces bases de données contient la topologie entière de l'area connectée et peut donc être “summarizée”, c’est-à-dire agrégée en une seule route IP.
-- Ces informations peuvent être transmises à la zone de backbone pour la distribution
-- Un élément clé est qu’un ABR est l’endroit où l’agrégation doit être configurée pour réduire la taille des mises à jour de routage qui doivent être envoyées ailleurs
-
-### Autonomous System Border Routeur ( ASBR )
-
-- Un ASBR assure le rôle de ASBR et peut aussi être un ABR.
-- Il permet de connecter plusieurs area OSPF et redistribuer des routes externes. Il permet de faire la liaison entre différentes area mais aussi avec d’autre AS
-- OSPF est un IGP (Interior Gateway Protocol), autrement dit il devra être connecté au reste de l’Internet par d’autres AS.
-- Ce type de routeur fera en quelque sorte office de passerelle vers un ou plusieurs AS. L’échange d’information entre un AS OSPF et d’autres AS est le rôle d’un ASBR.
-- Les informations qu’il reçoit de l’extérieur seront redistribuées au sein de l’AS OSPF
-
-## Rôle dans la zone
-
-Les rôles de routeurs décrit sont dans le cas ou, les routeurs font parti du même segment réseau. Dans le cas ou, plusieurs segments sont présent, il est possible que des routeurs aient plusieurs rôles en simultané, ces rôles sont chacun pour un segment différent
-
-### Designated Routeur ( DR )
-
-- Le DR est le routeur élu pour représenter le segment réseau
-- Au sein de son area, il va centraliser la diffusion des LSA et la redistribution des LSA aux autres routeurs pour diminuer le traffic en multicast, la centralisation va permettre de maintenir une adjacence complète avec tous les routeurs du segments
-- Le DR génère des LSA réseau ( LSA Type 2 )
-
-### Backup Designated Router ( BDR )
-
-- Le BDR est le routeur de secours de la zone et prend le relais en cas de non réponse de la part du DR
-- Il va surveiller le DR par le biais d’un message Hello régulier, si au bout d’un temps donné le DR ne répond pas, le BDR deviens DR et une nouvelle élection se fera pour élire un nouveau BDR
-- le BDR va écouter les LSA de la zone mais, ne va pas les redistribuer tant que le DR est actif
-
-### Designated Routeur Other ( DROTHER )
-
-- Tous les routeurs autre que le DR et le BDR prendront le rôle de DROther
-- Leurs fonction est d’établir une adjacence complète avec le DR et le BDR, ils vont aussi envoyé leurs LSA au DR pour établir sur le DR, la Link State Database et reçoivent les LSA du DR pour mettre à jour leur Link State Database
-
 ## Election routeur
 
 ### Processus élection
@@ -149,5 +96,87 @@ L'état "Full" est l'état final dans le processus de formation d'une relation O
 
 Ici, les bases de données des routeurs voisins sont complètement synchronisées, et ils sont prêts à participer pleinement à l'élection du chemin le plus court à travers le réseau. Cet état signifie que le processus de voisinage a été correctement complété, et que les routeurs peuvent échanger des informations de routage de manière fiable
 
-Si un routeur n'atteint jamais l'état "Full", il est impératif de diagnostiquer les problèmes rencontrés dans les états précédents, car l'absence de cet état indique un échec dans la synchronisation des bases de données ou dans la communication avec les voisins.
+Si un routeur n'atteint jamais l'état "Full", il est impératif de diagnostiquer les problèmes rencontrés dans les états précédents, car l'absence de cet état indique un échec dans la synchronisation des bases de données ou dans la communication avec les voisins
 
+## Cout OSPF
+
+### Algorithme
+
+OSPF utilise l’algorithme de Dijkstra, Shortest Path First ( SPF ) pour calculer le coût d’un lien et déterminer la route la plus rapide vers une destination. Un coup plus faible sera un chemin préféré.
+
+Le coût est un chiffre entier compris entre 1 et 255
+
+La bande passante de référence, par défaut correspond à 10^8 ( 100 000 000 = 100 mbps )
+
+Calcul :
+
+Coût = Bande passante de référence / bande passante de l’interface
+
+exemple: 
+
+Bande passante de référence = 100 Mbps, Lien à 10 Mbps
+Coût = 100/10 => 10
+
+une bande passante d’interface de 10Go/s
+Coût = 100 000 / 10 000 000 000  => 1 ( ne peut pas être inférieur à 1 )
+
+Quand OSPF calcule le coût des chemins, il va utiliser son routeur comme Rooted Tree, à partir de ce Rooted Tree, le calcul des chemins vers les routeurs voisins va permettre de constituer un SPF Tree qui sert à cartographié, pour chaque lien le coût associé
+
+### Modifier cout de reference
+
+Il est possible de modifier le coût OSPF d’un lien pour favoriser ou forcer un chemin.
+
+Par exemple, sur un switch qui possède un lien 1Go/S et un lien 100Go/S , les deux liens ont un côut de 1 ce qui fait que, OSPF ne fait pas le différence entre les deux lien. En modifiant le coût manuellement, il est possible par exemple de favoriser le lienb 100Go/S pour lui donner une priorité et faire en sorte que le lien 1Go/S soit utilisé en secondaire ou en lien de backup
+
+exemple:
+
+Ici, l’auto-cost se compte en mbits ( 100 par défaut ). En modifiant l’auto-cost à 10 000, la référence passe de 100Mb à 10 000Mbit ( soit 10Gb ), mon lien à 10 Go/S aura un coût égale à 1 alors que mon lien à 1Go/S aura un coût égale à 10.
+
+Le lien 100Go/s sera favorisé pour le transport de paquet du fait de son faible coût.
+
+Cependant, si la valeur de l’auto-cost est modifié, tous les routeurs du domaine OSPF doit avoir la même valeur. Une valeur différente peut emmené à des disfonctionnement ou des irrégularité du routage.
+
+```bash
+router ospf 1
+auto-cost reference bandwith 10000
+```
+
+### Modifier cout interface
+
+Il est possible de modifier le coût directement sur un interface en spécifiant une valeur défini.
+
+Par exemple, je choisis de mettre un coût à 5 alors qu’en temps normal, le coût serait bien supérieur. Permet d’influencer les liens utilisé
+
+L'interet de modifier le cout d'une interface, permet de favoriser ou défavoriser volontairement des liens, la modification est locale et n'a pas besoin d'être établi sur d'autre routeur de la zone ou du domaine OSPF
+
+```bash
+interface gigabitEthernet0/0
+ip ospf cost 5
+```
+
+## Authentication
+
+OSPF prend en charge plusieurs mécanisme d’authentification, l’objectif est de sécuriser les échanges en les rendant illisibles pour toutes personnes extérieur ou dans le cas d’un routeur rogue OSPF ajouté et  garantir l’intégrité des messages OSPF
+
+OSPF prend en charge
+
+- Aucune authentification: Aucun mot de passe pour sécurisé les échanges
+- Plain text: un mot de passe configuré à la main mais apparait en clair lors de capture de trame, ce qui rend sa sécurité de très faible à inexistante
+- Hachage MD5 ou SHA: Mot de passe partagé et un id de clé son configuré sur chaque routeur, le routeur émetteur calcul un hash pour chaque message, ce hash est ajouté dans l’en-tête du paquet. Le routeur destinataire va recalculé le hash avec sa clé local et comparer les valeurs. Le mot de passe ne circule jamais sur le réseau et permet d’éviter les attaques par packet crafting ou une alteration des paquets.
+
+Il peut être intéressant d’utiliser une authentification pour chaque zone et définir un mot de passe par interface et de préféré le SHA-256 en premier, si pas de possibilité prendre le MD5
+
+## Interface passive
+
+Mettre une interface en passive interface, permet de dire au routeur qu’il ne faut pas envoyer et recevoir de messages OSPF sur cette interface pour éviter de flooder un réseau inutilement
+
+Par exemple, si l’interface est connecté directement sur un LAN utilisateur, envoyé des messages OSPF ne servirais à rien car les périphériques client ne seront pas en mesure de traiter ces messages
+
+Il peut être intéressant de spécifier explicitement les interfaces à mettre en actif, la première commande permet de mettre en passif tout les interfaces et après, retirer sur un interface précis le statut de passif
+
+```bash
+passive-interface default
+no passive-interface gigabitEthernet 0/0/0
+```
+
+- Passive-interface default : Met toutes les interfaces en état `passive`
