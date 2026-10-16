@@ -9,27 +9,17 @@ Primary/secondary, notify, transferts de zone, also-notify, DDNS multi-serveurs
 5. HA Kea DHCP — redondance DHCP
 load-balancing, Réplication des baux et heartbeat entre pairs
 
-Ouvre sur le problème, pas sur l'outil. "Comment garantir la continuité du service DHCP/DNS" accroche plus que "J'ai installé Kea"
-
-Justifie les choix techniques : pourquoi le hook HA de Kea plutôt que keepalived/VRRP, hot-standby vs load-balancing, pourquoi du DDNS côté Kea plutôt que des scripts nsupdate
-
-Montre des extraits de config, pas des fichiers entiers : 5-10 lignes ciblées par point clé suffisent (les blocs lease-management, le allow-update avec TSIG, etc.)
-
-La section tests est ce qui crédibilise : scénarios de panne concrets + résultats mesurés (temps de bascule, pertes ou non de baux)
-
-Pièges rencontrés : c'est souvent la partie la plus partagée/commentée (sync des leases, réconciliation DDNS après failover, TTL, etc.)
-
-Format LinkedIn : posts longs sont tronqués — publie un post court avec le rapport en PDF/carrousel, ou découpe en articles LinkedIn. Garde des phrases courtes et des sous-titres.
-
 # DHCP - DDNS
 
-presentation projet
+Dans le cadre de ce projet, j'ai mis en place une infrastructure DHCP et DNS dynamique (DDNS) sous Linux, afin d'automatiser l'attribution des adresses IP et la mise à jour des enregistrements DNS.
 
 ## Objectif
 
-sujet, contexte, problematique
+L'objectif est de simplifier l'administration du réseau en assurant la cohérence entre les adresses IP attribuées aux machines et leurs noms d'hôte, pour répondre à la problématique de l'adressage IP qui se retrouve facilité, en réduisant considérablement les tâches manuelles.
 
-Techno, Distro
+Aussi, la mise en place d'une infrastructure DHCP et DNS en High availability va permettre, de garantir une disponibilité accrue en cas de panne d'un des serveurs en supprimant les SPOF
+
+
 
 Schema, Adressage IP
 
