@@ -20,10 +20,9 @@ Plusieurs SPOF, peuvent être pris en compte et, voire comment une solution peut
 
 Pour ce lab, je me suis orienté sur `kea-dhcp` et `bind`, touts les deux gratuit et open-source
 
-- `kea-dhcp` est le successeur direct et moderne de `isc-dhcp`, intégre nativement la possibilité d'enregistrer des adresses IP distribué dans une zone DNS, la prise en charge de la haute disponibilité, que ce soit load-balancing comme fail-over
-- `bind` reste le DNS de référence, à la capacité de pouvoir répliquer les zones avec d'autres serveurs DNS, autorise les mises à jour dynamique qui peuvent être sécurisé par l'utilisation d'une clé TSIG
-
 La mise en place de l'infrastructure se fera avec des VM, sur un serveur avec un hyperviseur proxmox et l'utilisation d'une VM opnsense qui fera office de routeur pour joindre mes différents LAN, toutes les VM, sont des Linux Debian 13
+
+
 
 ### DHCP
 
