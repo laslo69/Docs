@@ -22,7 +22,13 @@ Pour ce lab, je me suis orienté sur `kea-dhcp` et `bind`, touts les deux gratui
 
 La mise en place de l'infrastructure se fera avec des VM, sur un serveur avec un hyperviseur proxmox et l'utilisation d'une VM opnsense qui fera office de routeur pour joindre mes différents LAN, toutes les VM, sont des Linux Debian 13
 
+![topologie](./illustration/topologie.png)
 
+### OPNsense
+
+#### DHCP Relay
+
+#### NAT
 
 ### DHCP
 
@@ -63,7 +69,3 @@ dns 1 + 2 pour check axfr/ixfr
 dns2 pour voir si dhcp ajoute bien dans secondary
 
 dns1+2 pour voir si dns2 forward l'update vers le master
-
-## Annexe
-
-configuration complete dns + dhcp
