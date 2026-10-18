@@ -1,40 +1,60 @@
 # DHCP & DNS en haute disponibilité avec Kea et BIND
 
+## Projet
+
+### Contexte
+
+Dans le cadre de ce projet, j'ai mis en place une infrastructure réseau sous Linux associant un service DHCP à un service DNS dynamique (DDNS).
+
+L'objectif est d'automatiser l'attribution des adresses IP aux clients et de maintenir à jour les enregistrements DNS correspondants.
+
 Un serveur DHCP en panne = plus aucun équipement ne peut rejoindre le réseau. Pas de réseau, pas de prod
 
-J'ai donc monté une architecture DHCP/DNS sans point de défaillance unique : Kea en haute disponibilité + BIND en fail-over, avec mise à jour DNS dynamique et sécurisée
+### Problematique
 
-Ce lab a pour vocation de présenter une configuration d'un DHCP et DNS en haute disponibilité, d'expliquer pourquoi avoir choisi ces services, les problèmes résolus, avec des test de pannes
+Comment automatiser l'attribution des adresses IP et la mise à jour des enregistrements DNS afin de simplifier l'administration d'un réseau ?
 
-## Objectif
+### Objectif
 
-L'objectif premier, est de simplifier l'administration du réseau en automatisant l'adressage IP pour les clients de chaque LAN, lui fournir des options comme les DNS à utiliser et la gateway, mais aussi, le besoin de mettre en place une résolution DNS, qui est mis à jour automatiquement par les serveurs DHCP, va permettre d'automatiser le processus de création de la résolution de nom, que ce soit, résoudre le nom en IP, comme l'IP en nom
+- Automatiser l'attribution des adresses IP via DHCP.
+- Configurer un service DNS pour la résolution des noms de machines.
+- Mettre en place les mises à jour DNS dynamiques.
+- Vérifier la cohérence entre les adresses IP attribuées et les enregistrements DNS.
+- Valider le fonctionnement de l'infrastructure à l'aide de tests.
+- Reduction des SPOF
 
-En automatisant ces processus, il est possible de réduire voire supprimer les configurations manuelle, réduire le risque de conflit d'adresse
+## Architecture et Environnement technique
 
-Aussi, la mise en place d'une infrastructure DHCP et DNS en High availability va permettre, de garantir une disponibilité accrue en cas de panne d'un des serveurs en supprimant les SPOF, par exemple si un des serveurs vient à être hors-service, l'autre serveur est en mesure de pouvoir assurer la continuité de service
+### Environnement utilisé
 
-Plusieurs SPOF, peuvent être pris en compte et, voire comment une solution peut être apporté, pour réduire dans la mesure du possible, le nombre de SPOF présent
-
-## Configuration
-
-Pour ce lab, je me suis orienté sur `kea-dhcp` et `bind`, touts les deux gratuit et open-source
-
-La mise en place de l'infrastructure se fera avec des VM, sur un serveur avec un hyperviseur proxmox et l'utilisation d'une VM opnsense qui fera office de routeur pour joindre mes différents LAN, toutes les VM, sont des Linux Debian 13
+- Hyperviseur : Proxmox
+- Système d'exploitation : OPNsense, Debian
+- Service DHCP : kea-dhcp
+- Service DNS : Bind9
+- Réseau :
+    - LAN local : 192.168.0.0/24
+    - LAN 10 : 192.168.10.0/24
+    - LAN 20 : 192.168.20.0/24
 
 ![topologie](./illustration/topologie.png)
 
+## Installation et configuration
+
 ### OPNsense
 
-#### DHCP Relay
+Un des premier éléments à mettre en place, est le DHCP relay pour permettre à mon LAN clients de communiquer avec les serveurs DHCP sur un autre LAN à part
 
-#### NAT
+![dhcp relay](./illustration/dhcp-relay.png)
 
 ### DHCP
 
-fichier lease
+Kea-dhcp enregistre touts les leases dans un fichier créer lors de l'installation, qui se situe dans : `/var/lib/kea/kea-leases4.csv`
+
+Le fichier de configuration de kea-dhcp contient des instructions pour mettre à jour le fichier automatiquement
 
 kea-dhcp4.conf
+
+
 
 kea-ddns.conf
 
