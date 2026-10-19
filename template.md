@@ -46,4 +46,3 @@ Test unitaire et documente
 
 ## Annexes
 
-Configuration complete en annexe
