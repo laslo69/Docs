@@ -21,9 +21,7 @@ Comment automatiser l'attribution des adresses IP et la mise à jour des enregis
 - Valider le fonctionnement de l'infrastructure à l'aide de tests.
 - Reduction des SPOF
 
-## Architecture et Environnement technique
-
-### Environnement utilisé
+## Architecture et Environnement
 
 - Hyperviseur : Proxmox
 - Système d'exploitation : OPNsense, Debian
@@ -38,31 +36,449 @@ Comment automatiser l'attribution des adresses IP et la mise à jour des enregis
 
 ## Installation et configuration
 
+Les paquets requis pour la configuration des DHCP et DNS:
+
+- kea-dhcp4-server
+- kea-dhcp-ddns-server
+- kea-ctrl-agent
+- bind9
+
+***
+
 ### OPNsense
 
-Un des premier éléments à mettre en place, est le DHCP relay pour permettre à mon LAN clients de communiquer avec les serveurs DHCP sur un autre LAN à part
+Un des premier éléments à mettre en place, est le DHCP relay, pour permettre à mon LAN clients de communiquer avec le LAN où, les serveurs DHCP se situe et permettre de transmettre les messages DHCP
 
 ![dhcp relay](./illustration/dhcp-relay.png)
 
+***
+
 ### DHCP
 
-Kea-dhcp enregistre touts les leases dans un fichier créer lors de l'installation, qui se situe dans : `/var/lib/kea/kea-leases4.csv`
+Kea-dhcp enregistre touts les leases dans un fichier créer lors de l'installation, qui se situe dans : `/var/lib/kea/kea-leases4.csv` et estmis à jour automatiquement
 
-Le fichier de configuration de kea-dhcp contient des instructions pour mettre à jour le fichier automatiquement
+#### Configuration DHCP
+
+Le fichier `/etc/kea/kea-dhcp4.conf` est déja existant lors de l'installation, il est recommandé de faire un copie du fichier de base.
+
+```json
+{
+    "Dhcp4":
+    {
+        "valide-lifetime": 2000,
+        "renew-timer": 500,
+        "rebind-timer": 1000,
+        "interfaces-config":
+        {
+            "interfaces": [ "ens18" ]
+        },
+        "lease-database":
+        {
+            "type": "memfile",
+            "persist": true,
+            "name": "/var/lib/kea/kea-leases4.csv",
+            "lfc-interval": 800,
+            "max-row-errors": 100
+        },
+        "subnet4":
+        [
+            {
+                "id": 1,
+                "subnet": "192.168.10.0/24",
+                "pools":
+                [
+                    {
+                        "pool": "192.168.10.20 - 192.168.10.30"
+                    }
+                ],
+                "option-data":
+                [
+                    {
+                        "name": "domain-name-servers",
+                        "data": "192.168.10.5,192.168.10.6"
+                    },
+                    {
+                        "name": "domain-name",
+                        "data": "lab.lan"
+                    },
+                    {
+                        "name": "domain-search",
+                        "data": "lab.lan"
+                    },
+                    {
+                        "name": "routers",
+                        "data": "192.168.10.1"
+                    }
+                ]
+            },
+            {
+                "id": 2,
+                "subnet": "192.168.20.0/24",
+                "pools":
+                [
+                    {
+                        "pool": "192.168.20.10 - 192.168.20.40"
+                    }
+                ],
+                "option-data":
+                [
+                    {
+                        "name": "domain-name-servers",
+                        "data": "192.168.10.5,192.168.10.6"
+                    },
+                    {
+                        "name": "domain-name",
+                        "data": "lab.lan"
+                    },
+                    {
+                        "name": "domain-search";
+                        "data": "lab.lan"
+                    },
+                    {
+                        "name": "routers",
+                        "data": "192.168.20.1"
+                    }
+                ],
+                
+            }
+        ]
+    }
+}
+```
+
+#### Configuration DHCP-DDNS
 
 kea-dhcp4.conf
 
+```json
+"dhcp-ddns":
+        {
+            "enable-updates": true,
+            "server-ip": "127.0.0.1",
+            "server-port": 53001,
+            "sender-port": 0,
+            "ncr-protocole": "UDP",
+            "ncr-format": "JSON"
+        },
+        "ddns-send-updates": true,
+        "ddns-override-client-update": true,
+        "ddns-override-no-update": true,
+        "ddns-qualifying-prefix": "lab.lan",
+        "ddns-generated-prefix": "dhcp",
+        "ddns-replace-client-name": "when-not-present",
+```
+
 kea-ddns.conf
+
+```json
+{
+    "DhcpDdns":
+    {
+        "tsig-keys":
+        [
+            {
+                "name": "ma-cle-ddns.key",
+                "algorithm": "hmac-sha256",
+                "secret": "HGj/s1alczSQMz8GAmVG/nwIsd0JiDxTX2whyXpk+MA="
+            }
+        ],
+        "forward-ddns":
+        {
+            "ddns-domains":
+            [
+                {
+                    "name": "lab.lan.",
+                    "key-name": "ma-cle-ddns.key",
+                    "dns-servers":
+                    [
+                        {
+                            "ip-address": "192.168.10.5",
+                            "port": 53
+                        },
+                        {
+                            "ip-address": "192.168.10.6",
+                            "port": 53
+                        }
+                    ]
+                }
+            ]
+        },
+        "reverse-ddns":
+        {
+            "ddns-domains":
+            [
+                {
+                    "name": "10.168.192.in-addr.arpa.",
+                    "key-name": "ma-cle-ddns.key",
+                    "dns-servers":
+                    [
+                        {
+                            "ip-address": "192.168.10.5",
+                            "port": 53
+                        },
+                        {
+                            "ip-address": "192.168.10.6",
+                            "port": 53
+                        }
+                    ]
+                },
+                {
+                    "name": "20.168.192.in-addr.arpa.",
+                    "key-name": "ma-cle-ddns.key",
+                    "dns-servers":
+                    [
+                        {
+                            "ip-address": "192.168.10.5",
+                            "port": 53
+                        },
+                        {
+                            "ip-address": "192.168.10.6",
+                            "port": 53
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
+```
+
+#### Configuration Load-balance
 
 load-balance
 
+```json
+"hooks-libraries":
+        [
+            {
+                "library": "libdhcp_leases_cmds.so",
+                "parameters": {}
+            },
+            {
+                "library": "libdhcp_ha.so",
+                "parameters": {
+                    "high-availability": [
+                        {
+                            "this-server-name": "dhcp-ddns-1",
+                            "mode": "load-balancing",
+                            "heartbeat-delay": 10000,
+                            "max-response-delay": 60000,
+                            "peers":
+                            [
+                                {
+                                    "name": "dhcp-ddns-1",
+                                    "url": "http://192.168.10.5:8005/",
+                                    "role": "primary",
+                                    "auto-failover": true,
+                                    "user": "kea-api",
+                                    "password": "test"
+                                },
+                              {
+                                    "name": "dhcp-ddns-2",
+                                    "url": "http://192.168.10.6:8005/",
+                                    "role": "secondary",
+                                    "auto-failover": true,
+                                    "user": "kea-api",
+                                    "password": "test"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ],
+```
+
+#### Configuration reservation
+
+Le bloc réservation, va permettre de créer les réserrvations pour des clients DHCP
+
+```json
+...
+"reservations":
+                [
+                    {
+                        "hw-address": "bv:24:11:37:b5:a2",
+                        "ip-address": "192.168.20.10",
+                        "user-context": { "comment": "proxmox manager" }
+                    },
+                    {
+                        "hw-address": "bc:24:11:1d:19:bd",
+                        "ip-address": "192.168.20.11",
+                        "user-context": { "comment": "px-pve-1" }
+                    },                    {
+                        "hw-address": "bc:24:11:95:4a:06",
+                        "ip-address": "192.168.20.12",
+                        "user-context": { "comment": "px-pve-2" }
+                    },                    {
+                        "hw-address": "nv:24:11:d1:32:8d",
+                        "ip-address": "192.168.20.13",
+                        "user-context": { "comment": "px-pve-3" }
+                    },                    {
+                        "hw-address": "bc:24:11:f4:a2:27",
+                        "ip-address": "192.168.20.14",
+                        "user-context": { "comment": "proxmox-backup" }
+                    },                    {
+                        "hw-address": "bc:24:11:34:bf:f6",
+                        "ip-address": "192.168.20.15",
+                        "user-context": { "comment": "proxmox-mail" }
+                    }
+                ]
+...
+```
+
+#### DHCP control agent
+
+Modifier la section "contro-agent" et "authentication" de /etc/kea/kea-ctrl-agent et modifier le port http
+
+control-agent
+
+{
+...
+"Control-agent": {
+    "http-host": "0.0.0.0",
+    "http-port": 8000,
+    ...
+    }
+}
+authentication
+
+...
+"authentication":
+{
+    "type": "basic",
+    "realm": "Kea Control Agent",
+    "directory": "/etc/kea",
+    "clients": [
+        {
+            "user": "kea-api",
+            "password-file": "kea-api-password"
+        }
+    ]
+},
+...
+Créer dans /etc/kea/ un fichier kea-api-password et écrire uniquement le mot de passe
+
+test
+
 ### DNS
+
+#### Déclaration zone DNS
 
 namd.conf.local
 
-namd.conf.options
+```bash
+include "/etc/bind/key/ma-cle-tsig.key";
+include "/etc/bind/key/ma-cle-ddns.key";
+
+zone "lab.lan"
+{
+    type master;
+    file "/var/cache/bind/db.lab.lan";
+    allow-update { key "ma-cle-ddns.key"; };
+    allow-transfer { key "ma-cle-tsig.key; };
+    notify yes;
+};
+
+zone "10.168.192.in-addr.arpa"
+{
+    type master;
+    file "/var/cache/bind/db-reverse10.lab.lan";
+    allow-update { key "ma-cle-ddns.key"; };
+    allow-transfer { key "ma-cle-tsig.key; };
+    notify yes;
+};
+
+zone "lab.lan"
+{
+    type master;
+    file "/var/cache/bind/db-reverse20.lab.lan";
+    allow-update { key "ma-cle-ddns.key"; };
+    allow-transfer { key "ma-cle-tsig.key; };
+    notify yes;    
+};
+```
+
+#### Création zone DNS
 
 creation zone
+
+```bash
+zone directe
+$ORIGIN lab.lan 
+$TTL 86400 
+                @   	IN  	SOA 	dns1.lab.lan.	admin.lab.lan. (
+                                        2001062501 ; serial                     
+                                        21600      ; refresh after 6 hours                     
+                                        3600       ; retry after 1 hour                     
+                                        604800     ; expire after 1 week                     
+                                        86400 )    ; minimum TTL of 1 day  
+                                NS      dhcp-ddns-1.lab.lan.
+                                NS      dhcp-ddns-2.lab.lan.
+dhcp-ddns-1.lab.lan.    A               192.168.10.5
+dhcp-ddns-2.lab.lan.    A               192.168.10.6
+```
+
+zone reverse
+
+LAN 10
+
+```bash
+$ORIGIN lab.lan 
+$TTL 86400 
+                @   	IN  	SOA 	dns1.lab.lan.	admin.lab.lan. (
+                                        2001062501 ; serial                     
+                                        21600      ; refresh after 6 hours                     
+                                        3600       ; retry after 1 hour                     
+                                        604800     ; expire after 1 week                     
+                                        86400 )    ; minimum TTL of 1 day  
+                                NS      dhcp-ddns-1.lab.lan.
+                                NS      dhcp-ddns-2.lab.lan.
+dhcp-ddns-1.lab.lan.    A               192.168.10.5
+dhcp-ddns-2.lab.lan.    A               192.168.10.6
+```
+
+LAN 20
+
+```bash
+$ORIGIN lab.lan 
+$TTL 86400 
+                @   	IN  	SOA 	dns1.lab.lan.	admin.lab.lan. (
+                                        2001062501 ; serial                     
+                                        21600      ; refresh after 6 hours                     
+                                        3600       ; retry after 1 hour                     
+                                        604800     ; expire after 1 week                     
+                                        86400 )    ; minimum TTL of 1 day  
+                                NS      dhcp-ddns-1.lab.lan.
+                                NS      dhcp-ddns-2.lab.lan.
+dhcp-ddns-1.lab.lan.    A               192.168.10.5
+dhcp-ddns-2.lab.lan.    A               192.168.10.6
+```
+
+#### Configuration DNS
+
+named.conf.options
+
+```bash
+acl "lan"{
+    192.168.10.0/24;
+    192.168.20.0/24;
+    localhost;
+    localnets;
+};
+options {
+    directory "/var/cache/bind";
+    version "not available";
+    forwarders {
+        1.1.1.1;
+        9.9.9.9;
+    };
+    recursion yes;
+    dnssec-validation auto;
+    listen-on { any; };
+    allow-query { lan; };
+};
+```
 
 ## Test
 
