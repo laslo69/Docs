@@ -57,9 +57,51 @@ Un des premier éléments à mettre en place, est le DHCP relay, pour permettre 
 
 Kea-dhcp enregistre touts les leases dans un fichier créer lors de l'installation, qui se situe dans : `/var/lib/kea/kea-leases4.csv` et estmis à jour automatiquement
 
+La configuration du DHCP se fait en `JSON`
+
 #### Configuration DHCP
 
 Le fichier `/etc/kea/kea-dhcp4.conf` est déja existant lors de l'installation, il est recommandé de faire un copie du fichier de base.
+
+La configuration du  bloc DHCP se compose de plusieurs sections:
+
+- Timers
+- Interface
+- Gestion leases
+- Gestion Sous-réseaux, pools & options DHCP
+
+***
+
+Explications sur la configuration de chaque bloc
+
+1) Timers ( en secondes )
+
+- "valide-lifetime": 2000 : Durée validité du leases
+- "renew-timer": 500      : Timer T1, délais avant l'émission d'un message DHCP REQUEST afin de conserver le lease 
+- "rebind-timer": 1000    : Timer T2, similaire à renew-timer mais se produit dans le cas ou, le serveur DHCP ne répond pas à la requête du "renew-timer"
+
+2) Interface
+
+- "interfaces": [ "ens18" ] : Désigne l'interface d'écoute pour la réception de message DHCP
+
+3) Gestion leases
+
+- "type": "memfile" : Désigne comment enregistrer les leases, "memfile" est le fichier `/var/lib/kea/kea-leases4.csv`
+- "persist": true : Dans le cas d'un redémarrage, les leases restent enregistrer dans le fichiers
+- "name": "/var/lib/kea/kea-leases4.csv" : Chemin du fichiers de lease
+- "lfc-interval": 800 : Délai avant que le fichier contenant les leases soit nettoyer de tout les enregistrements anciens
+- "max-row-errors": 100 : définit le nombre maximal de lignes corrompues ou erronées que Kea tolérera lors de la lecture d'un fichier de bail avant d'interrompre le chargement et de se fermer
+
+4) Gestion sous-réseaux
+
+- "subnet4": Déclaration du bloc d'instruction des sous-réseaux à déclarer
+- "id": 1 : ID du réseau à déclarer, à incrémenter pour chaque nouveau réseau
+- "subnet": "192.168.10.0/24" : Définir le réseau au format CIDR
+- "pools": : Déclaration du/des pools réseau, plusieurs pools peuvent être déclaré tant que, non chevauchant
+- "pool": "192.168.10.20 - 192.168.10.30"
+- "option-data": Définition des options DHCP, met à jour pour les clients le fichier `/etc/resolv.conf`
+- "name": "<name>" : Indiquer, soit le code de l'option, soit le nom de l'option
+- "data": "<data>" : Indique la valeur correspondant à l'option 
 
 ```json
 {
