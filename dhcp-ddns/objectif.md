@@ -4,17 +4,20 @@
 
 Dans le cadre de ce projet, j'ai mis en place une infrastructure réseau sous Linux associant un service DHCP à un service DNS dynamique (DDNS).
 
-L'objectif est d'automatiser l'attribution des adresses IP aux clients et de maintenir à jour les enregistrements DNS correspondants.
-
-Un serveur DHCP en panne = plus aucun équipement ne peut rejoindre le réseau. Pas de réseau, pas de prod
+L'objectif est d'automatiser l'attribution des adresses IP aux clients et de maintenir à jour les enregistrements DNS correspondants, le tout en sécurisant les échange entre les DHCP et les DNS.
 
 ## Problematique
 
 Comment automatiser l'attribution des adresses IP et la mise à jour des enregistrements DNS afin de simplifier l'administration d'un réseau ?
 
+Comment faire en sorte, de sécuriser l'échange pour s'assurer qu'un serveur DNS non autorisé ne puisse pas se synchroniser avec les DNS existant ?
+
+Si un des serveurs DHCP ou DNS tombe en panne, comment rendre l'infrastructure résiliante ?
+
 ## Objectif
 
 - Automatiser l'attribution des adresses IP via DHCP.
+
 - Configurer un service DNS pour la résolution des noms de machines.
 - Mettre en place les mises à jour DNS dynamiques.
 - Vérifier la cohérence entre les adresses IP attribuées et les enregistrements DNS.
@@ -25,6 +28,7 @@ Comment automatiser l'attribution des adresses IP et la mise à jour des enregis
 ## Architecture et Environnement
 
 - Hyperviseur : Proxmox
+
 - Système d'exploitation : OPNsense, Debian
 - Service DHCP : kea-dhcp
 - Service DNS : Bind9
@@ -40,6 +44,7 @@ Comment automatiser l'attribution des adresses IP et la mise à jour des enregis
 Les paquets requis pour la configuration des DHCP et DNS:
 
 - kea-dhcp4-server
+
 - kea-dhcp-ddns-server
 - kea-ctrl-agent
 - bind9
@@ -56,17 +61,20 @@ Un des premier éléments à mettre en place, est le DHCP relay, pour permettre 
 
 ### DHCP
 
-Kea-dhcp enregistre touts les leases dans un fichier créer lors de l'installation, qui se situe dans : `/var/lib/kea/kea-leases4.csv` et estmis à jour automatiquement
+Kea-dhcp enregistre touts les leases dans un fichier créer lors de l'installation, qui se situe dans : `/var/lib/kea/kea-leases4.csv` et est mis à jour automatiquement
 
-La configuration du DHCP se fait en `JSON`
+Les fichiers de configurations du serveur DHCP principale peuvent être copié sur l'autre serveur, pour être sûr d'avoir une configuration identique
+
+Note : La configuration du DHCP se fait en `JSON`
 
 #### Configuration DHCP
 
-Le fichier `/etc/kea/kea-dhcp4.conf` est déja existant lors de l'installation, il est recommandé de faire un copie du fichier de base.
+Le fichier `/etc/kea/kea-dhcp4.conf` étant déja existant lors de l'installation, il est recommandé de faire un copie du fichier de base.
 
 La configuration du  bloc DHCP se compose de plusieurs sections:
 
 - Timers
+
 - Interface
 - Gestion leases
 - Gestion Sous-réseaux, pools & options DHCP
@@ -98,6 +106,7 @@ Spécifie l'interface d'écoute pour la réception de trame DHCP, plusieurs inte
 Configure le comportement de kea-dhcp4, sur comment les leases doivent être stockés, ou, comment gérer la supppression de lease obsolète et le nombre d'erreurs autoriser avant que le fichier, ne soit plus lu
 
 - "type": "memfile" : Désigne comment enregistrer les leases, "memfile" est le fichier `/var/lib/kea/kea-leases4.csv`
+
 - "persist": true : Dans le cas d'un redémarrage, les leases restent enregistrer dans le fichiers
 - "name": "/var/lib/kea/kea-leases4.csv" : Chemin du fichiers de lease
 - "lfc-interval": 800 : Délai avant que le fichier contenant les leases soit nettoyer de tout les enregistrements anciens
@@ -110,6 +119,7 @@ Configure le comportement de kea-dhcp4, sur comment les leases doivent être sto
 Définission des réseaux, dont l'attribution des IP,option DHCP et pools, est géré par kea-dhcp
 
 - "id": 1 : ID du réseau à déclarer, à incrémenter pour chaque nouveau réseau
+
 - "subnet": "192.168.10.0/24" : Définir le réseau au format CIDR
 - "pools": : Déclaration du/des pools réseau, plusieurs pools peuvent être déclaré tant que, non chevauchant
 - "pool": "192.168.10.20 - 192.168.10.30"
@@ -207,13 +217,15 @@ Définission des réseaux, dont l'attribution des IP,option DHCP et pools, est g
 La configuration du DHCP-DDNS se fait à travers 2 fichiers
 
 - kea-dhcp4.conf
+
 - kea-dhcp-ddns.conf
 
 **kea-dhcp4.conf**
 
-Dans le fichier `kea-dhcp4.conf`, la configuration du DDNS va permettre d'indiquer, à kea-dhcp, comment interagir entre le DHCP et le service DDNS, mais aussi comment e NCR ( Name Change Request )doit compléter la fonction
+Dans le fichier `kea-dhcp4.conf`, la configuration du DDNS va permettre d'indiquer, à kea-dhcp, comment interagir entre le DHCP et le service kea-ddns, mais aussi comment le NCR ( Name Change Request ) doit compléter le fonctionnement du ddns
 
 - "enable-updates": true : Active globalement l'envoi des requêtes de mise à jour DNS par le serveur DHCP
+
 - "server-ip": "127.0.0.1" : adresse IP sur laquelle le démon DDNS écoute
 - "server-port": 53001 : Port réseau utilisé par Kea DDNS pour recevoir les demandes du serveur DHCP
 - "sender-port": 0 : Port source utilisé par le serveur DHCP pour envoyer ses messages. 0 indique à Kea de laisser le système d'exploitation choisir un port éphémère libre de manière dynamique
@@ -227,14 +239,15 @@ Dans le fichier `kea-dhcp4.conf`, la configuration du DDNS va permettre d'indiqu
 - "ddns-replace-client-name": "when-not-present" : Si le nom du client n'est pas fournis lors de la requête, kea-dhcp en génère un à partir du prefix + de l'IP attribué
 
 ```json
-"dhcp-ddns":
-        {
-            "enable-updates": true,
-            "server-ip": "127.0.0.1",
-            "server-port": 53001,
-            "sender-port": 0,
-            "ncr-protocol": "UDP",
-            "ncr-format": "JSON"
+...
+    "dhcp-ddns":
+    {
+        "enable-updates": true,
+        "server-ip": "127.0.0.1",
+        "server-port": 53001,
+        "sender-port": 0,
+        "ncr-protocol": "UDP",
+        "ncr-format": "JSON"
         },
         "ddns-send-updates": true,
         "ddns-override-client-update": true,
@@ -242,9 +255,18 @@ Dans le fichier `kea-dhcp4.conf`, la configuration du DDNS va permettre d'indiqu
         "ddns-qualifying-prefix": "lab.lan",
         "ddns-generated-prefix": "dhcp",
         "ddns-replace-client-name": "when-not-present",
+...
 ```
 
 Le fichier `kea-ddns.conf` va permettre, de spécifier comment le service DHCP-DDNS va communiquer avec le serveur DNS pour pouvoir, ajouter/modifier des enregistrements
+
+Le bloc "tsig-keys" permet de renseigner une clé TSIG, qui sera ajouté sur les serveurs DNS pour autoriser les ajouts DNS provenant de ce DHCP, via l'authentification par la clé TSIG
+
+La section forward-ddns va permettre de spécifier, vers quel serveur pousser les modifications DNS, mais surtout en spécifiant la zone cible. 
+
+La déclaration des zones, qu'elles soient directe comme inverse se fait de la même manière
+
+Dans ce bloc, l'utilisation de la clé TSIG va permettre de signer les requêtes DNS provenant du DDNS en direction du DNS
 
 ```json
 {
@@ -319,9 +341,69 @@ Le fichier `kea-ddns.conf` va permettre, de spécifier comment le service DHCP-D
 }
 ```
 
+#### Configuration reservation
+
+Le bloc réservation, va permettre de créer les réserrvations pour des clients DHCP et est assez simple à gérer
+
+- "hw-address": "bv:24:11:37:b5:a2" : Spécifie l'adresse MAC de l'interface du client
+- "ip-address": "192.168.20.10", : Désigne une adresse IP réservé pour le client avec l'adresse MAC correspondante
+- "user-context": { "comment": "proxmox manager" } : User-context va servire, en commentaire pour simplifier la lecture des réservations
+
+```json
+...
+"reservations":
+                [
+                    {
+                        "hw-address": "bv:24:11:37:b5:a2",
+                        "ip-address": "192.168.20.10",
+                        "user-context": { "comment": "proxmox manager" }
+                    },
+                    {
+                        "hw-address": "bc:24:11:1d:19:bd",
+                        "ip-address": "192.168.20.11",
+                        "user-context": { "comment": "px-pve-1" }
+                    },                    {
+                        "hw-address": "bc:24:11:95:4a:06",
+                        "ip-address": "192.168.20.12",
+                        "user-context": { "comment": "px-pve-2" }
+                    },                    {
+                        "hw-address": "nv:24:11:d1:32:8d",
+                        "ip-address": "192.168.20.13",
+                        "user-context": { "comment": "px-pve-3" }
+                    },                    {
+                        "hw-address": "bc:24:11:f4:a2:27",
+                        "ip-address": "192.168.20.14",
+                        "user-context": { "comment": "proxmox-backup" }
+                    },                    {
+                        "hw-address": "bc:24:11:34:bf:f6",
+                        "ip-address": "192.168.20.15",
+                        "user-context": { "comment": "proxmox-mail" }
+                    }
+                ]
+...
+```
+
 #### Configuration Load-balance
 
-load-balance
+La configuration du load-balance passe par des "hooks", qui peuvent fonctionner de 2 façon différents
+
+- fail-over
+- load-balance
+
+Dans le bloc " high-availability ", il faut spécifié, le mode de fonctionnement, les timers du heartbeat et les pairs
+
+- "this-server-name": "dhcp-ddns-1" : Décrit le nom du serveur actuel, si le fichier est copié, modifier le nom pour les autres serveurs
+
+- "mode": "load-balancing" : Défini le mode de high availability
+- "heartbeat-delay": 10000 : Définit le timer du heartbeat en `ms`
+- "max-response-delay": 60000 : Délai imparti avant de considéré un pair, comme étant down
+- "peers":
+- "name": "dhcp-ddns-1" : Défini le nom du pair, même le serveur local
+- "url": "http://192.168.10.5:8005/" : URL d'écoute de l'API de la haute disponibilité, le port doit être le même pour chaque pair sur chaque serveur
+- "role": "primary" : Spécifie si le serveur est le primary ou secondary
+- "auto-failover": true : Défini si le fail-over automatique doit être utilisé
+- "user": "kea-api" : utilisateur défini dans `/etc/kea/kea-ctrl-agent`
+- "password": "test" : mot de passe défini dans `/etc/kea/kea-api-password` et du chemin défini dans `/etc/kea/kea-ctrl-agent`
 
 ```json
 "hooks-libraries":
@@ -365,61 +447,36 @@ load-balance
         ],
 ```
 
-#### Configuration reservation
-
-Le bloc réservation, va permettre de créer les réserrvations pour des clients DHCP
-
-```json
-...
-"reservations":
-                [
-                    {
-                        "hw-address": "bv:24:11:37:b5:a2",
-                        "ip-address": "192.168.20.10",
-                        "user-context": { "comment": "proxmox manager" }
-                    },
-                    {
-                        "hw-address": "bc:24:11:1d:19:bd",
-                        "ip-address": "192.168.20.11",
-                        "user-context": { "comment": "px-pve-1" }
-                    },                    {
-                        "hw-address": "bc:24:11:95:4a:06",
-                        "ip-address": "192.168.20.12",
-                        "user-context": { "comment": "px-pve-2" }
-                    },                    {
-                        "hw-address": "nv:24:11:d1:32:8d",
-                        "ip-address": "192.168.20.13",
-                        "user-context": { "comment": "px-pve-3" }
-                    },                    {
-                        "hw-address": "bc:24:11:f4:a2:27",
-                        "ip-address": "192.168.20.14",
-                        "user-context": { "comment": "proxmox-backup" }
-                    },                    {
-                        "hw-address": "bc:24:11:34:bf:f6",
-                        "ip-address": "192.168.20.15",
-                        "user-context": { "comment": "proxmox-mail" }
-                    }
-                ]
-...
-```
-
 #### DHCP control agent
 
-Modifier la section "contro-agent" et "authentication" de /etc/kea/kea-ctrl-agent et modifier le port http
+Kea-ctrl-agent est un paquet, qui va permettre de configurer l'API de kea-dhcp pour le fonctionnement en load-balancing
 
-control-agent
+Dans le fichier `/etc/kea/kea-ctrl-agent.conf`, il y'a 2 bloc à modifier
 
+- "control-agent"
+- "authentication"
+
+Contrôle agent va servir à configurer comment l'API doit communiquer avec la fonction de load-balancing et contrôler l'authentification des serveurs DHCP
+
+"http-host": "0.0.0.0" : Indique l'IP à écouté
+"http-port": 8000 : Indique le port utilisé ( 8000 par défaut )
+
+```bash
 {
 ...
 "Control-agent": {
     "http-host": "0.0.0.0",
     "http-port": 8000,
-    ...
     }
 }
+...
+```
 
-authentication
+Ensuite, il faut configurer l'authentification
 
+Dans le bloc client, il est attendu un fichier contenant le mot de passe et son chemin, que j'ai simplement appelé "kea-api-password"
+
+```bash
 ...
 "authentication":
 {
@@ -434,9 +491,13 @@ authentication
     ]
 },
 ...
-Créer dans /etc/kea/ un fichier kea-api-password et écrire uniquement le mot de passe
+```
 
-test
+Il faut bien penser à créer le fichier `/etc/kea/kea-api-password` dans `/etc/kea/` et écrire uniquement le mot de passe à l'intérieur
+
+```bash
+echo "test" > /etc/kea/kea-api-password
+```
 
 ### DNS
 
