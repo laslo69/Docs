@@ -1,8 +1,6 @@
-# DHCP & DNS en haute disponibilité avec Kea et BIND
+# DHCP & DNS en haute disponibilite
 
-## Projet
-
-### Contexte
+## Contexte
 
 Dans le cadre de ce projet, j'ai mis en place une infrastructure réseau sous Linux associant un service DHCP à un service DNS dynamique (DDNS).
 
@@ -10,11 +8,11 @@ L'objectif est d'automatiser l'attribution des adresses IP aux clients et de mai
 
 Un serveur DHCP en panne = plus aucun équipement ne peut rejoindre le réseau. Pas de réseau, pas de prod
 
-### Problematique
+## Problematique
 
 Comment automatiser l'attribution des adresses IP et la mise à jour des enregistrements DNS afin de simplifier l'administration d'un réseau ?
 
-### Objectif
+## Objectif
 
 - Automatiser l'attribution des adresses IP via DHCP.
 - Configurer un service DNS pour la résolution des noms de machines.
@@ -33,8 +31,8 @@ Comment automatiser l'attribution des adresses IP et la mise à jour des enregis
 - Service DNS : Bind9
 - Réseau :
     - LAN local : 192.168.0.0/24
-    - LAN 10 : 192.168.10.0/24
-    - LAN 20 : 192.168.20.0/24
+    - LAN 10    : 192.168.10.0/24
+    - LAN 20    : 192.168.20.0/24
 
 ![topologie](./illustration/topologie.png)
 
@@ -53,8 +51,6 @@ Kea-dhcp enregistre touts les leases dans un fichier créer lors de l'installati
 Le fichier de configuration de kea-dhcp contient des instructions pour mettre à jour le fichier automatiquement
 
 kea-dhcp4.conf
-
-
 
 kea-ddns.conf
 
