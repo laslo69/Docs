@@ -20,6 +20,7 @@ Comment automatiser l'attribution des adresses IP et la mise à jour des enregis
 - Vérifier la cohérence entre les adresses IP attribuées et les enregistrements DNS.
 - Valider le fonctionnement de l'infrastructure à l'aide de tests.
 - Reduction des SPOF
+- Utilisation de clé TSIG pour sécuriser l'échange entre les DHCP et les DNS, mais aussi pour la réplication entre DNS
 
 ## Architecture et Environnement
 
@@ -76,15 +77,25 @@ Explications sur la configuration de chaque bloc
 
 1) Timers ( en secondes )
 
-- "valide-lifetime": 2000 : Durée validité du leases
+La définissions des timers, va permettre de donner les directives de, quand demander une mise à jour du lease, sa durée de vie et dans le cas échéant, supprimer le lease obsolète du fichier de leases
+
+- "valid-lifetime": 2000 : Durée validité du leases
 - "renew-timer": 500      : Timer T1, délais avant l'émission d'un message DHCP REQUEST afin de conserver le lease 
 - "rebind-timer": 1000    : Timer T2, similaire à renew-timer mais se produit dans le cas ou, le serveur DHCP ne répond pas à la requête du "renew-timer"
 
+***
+
 2) Interface
+
+Spécifie l'interface d'écoute pour la réception de trame DHCP, plusieurs interfaces peuvent être spécifié
 
 - "interfaces": [ "ens18" ] : Désigne l'interface d'écoute pour la réception de message DHCP
 
+***
+
 3) Gestion leases
+
+Configure le comportement de kea-dhcp4, sur comment les leases doivent être stockés, ou, comment gérer la supppression de lease obsolète et le nombre d'erreurs autoriser avant que le fichier, ne soit plus lu
 
 - "type": "memfile" : Désigne comment enregistrer les leases, "memfile" est le fichier `/var/lib/kea/kea-leases4.csv`
 - "persist": true : Dans le cas d'un redémarrage, les leases restent enregistrer dans le fichiers
@@ -92,9 +103,12 @@ Explications sur la configuration de chaque bloc
 - "lfc-interval": 800 : Délai avant que le fichier contenant les leases soit nettoyer de tout les enregistrements anciens
 - "max-row-errors": 100 : définit le nombre maximal de lignes corrompues ou erronées que Kea tolérera lors de la lecture d'un fichier de bail avant d'interrompre le chargement et de se fermer
 
+***
+
 4) Gestion sous-réseaux
 
-- "subnet4": Déclaration du bloc d'instruction des sous-réseaux à déclarer
+Définission des réseaux, dont l'attribution des IP,option DHCP et pools, est géré par kea-dhcp
+
 - "id": 1 : ID du réseau à déclarer, à incrémenter pour chaque nouveau réseau
 - "subnet": "192.168.10.0/24" : Définir le réseau au format CIDR
 - "pools": : Déclaration du/des pools réseau, plusieurs pools peuvent être déclaré tant que, non chevauchant
@@ -190,7 +204,27 @@ Explications sur la configuration de chaque bloc
 
 #### Configuration DHCP-DDNS
 
-kea-dhcp4.conf
+La configuration du DHCP-DDNS se fait à travers 2 fichiers
+
+- kea-dhcp4.conf
+- kea-dhcp-ddns.conf
+
+**kea-dhcp4.conf**
+
+Dans le fichier `kea-dhcp4.conf`, la configuration du DDNS va permettre d'indiquer, à kea-dhcp, comment interagir entre le DHCP et le service DDNS, mais aussi comment e NCR ( Name Change Request )doit compléter la fonction
+
+- "enable-updates": true : Active globalement l'envoi des requêtes de mise à jour DNS par le serveur DHCP
+- "server-ip": "127.0.0.1" : adresse IP sur laquelle le démon DDNS écoute
+- "server-port": 53001 : Port réseau utilisé par Kea DDNS pour recevoir les demandes du serveur DHCP
+- "sender-port": 0 : Port source utilisé par le serveur DHCP pour envoyer ses messages. 0 indique à Kea de laisser le système d'exploitation choisir un port éphémère libre de manière dynamique
+- "ncr-protocol": "UDP" : Protocole réseau utilisé pour le transport des requêtes NCR
+- "ncr-format": "JSON" : Format des données encapsulées dans les requêtes de mise à jour
+- "ddns-send-updates": true : Confirme l'envoi des requêtes
+- "ddns-override-client-update": true : Ignore la configuration ou la préférence du client
+- "ddns-override-no-update": true :  : Si un client demande explicitement à ne pas publier son nom dans le DNS, le serveur ignore sa demande
+- "ddns-qualifying-prefix": "lab.lan" : Nom de domaine ajouté automatiquement, à la fin du nom d'hôte
+- "ddns-generated-prefix": "dhcp" : Préfixe pour générer un nom générique si le client ne fournis pas de non d'hôte valide ( souvent : dhcp-192.168.20.10 )
+- "ddns-replace-client-name": "when-not-present" : Si le nom du client n'est pas fournis lors de la requête, kea-dhcp en génère un à partir du prefix + de l'IP attribué
 
 ```json
 "dhcp-ddns":
@@ -199,7 +233,7 @@ kea-dhcp4.conf
             "server-ip": "127.0.0.1",
             "server-port": 53001,
             "sender-port": 0,
-            "ncr-protocole": "UDP",
+            "ncr-protocol": "UDP",
             "ncr-format": "JSON"
         },
         "ddns-send-updates": true,
@@ -210,7 +244,7 @@ kea-dhcp4.conf
         "ddns-replace-client-name": "when-not-present",
 ```
 
-kea-ddns.conf
+Le fichier `kea-ddns.conf` va permettre, de spécifier comment le service DHCP-DDNS va communiquer avec le serveur DNS pour pouvoir, ajouter/modifier des enregistrements
 
 ```json
 {
@@ -383,6 +417,7 @@ control-agent
     ...
     }
 }
+
 authentication
 
 ...
