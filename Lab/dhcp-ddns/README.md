@@ -26,21 +26,49 @@ Si un des serveurs DHCP ou DNS tombe en panne, comment rendre l'infrastructure r
 
 Avant de commencer, il y'a plusieurs points intéressants et important, qui m'ont fait perdre du temps bêtement, que je souhaite aborder
 
-1) La configuration JSON
+1) **Documentation kea & bind**
 
-2) Kea-dhcp & apparmor
+Avant d'entamer le lab, il à fallu prendre connaissance des documentations, pour repérer les options utiles et me les notés
 
-3) kea-dhcp & cle TSIG
+Je ne sais que dire.... une documentation massive et brouillon pour kea-dhcp ce qui rend la compréhension très difficile
 
-4) Répertoire `/etc/bind/`
+A l'inverse pour bind, la documentation est relativement pauvre ce qui peut induire, de passer à côté des options ou informations
+
+2) **La configuration JSON**
+
+Sur l'ancien DHCP du consortium ISC, la syntaxe était en bash. Syntaxe simple à lire, écrire, mais depuis que isc-dhcp est obsolète et remplacé par kea-dhcp, la syntaxe est passé en JSON, qui est une syntaxe que j'ai trouvé plus "lourde" et plus difficile à lire
+
+3) **Kea-dhcp & apparmor**
+
+Un autre détail important de kea-dhcp est, lors du boot de la machine ( en l'occurence, une VM pour ma part ), le service était continuellement en erreur, même si la syntaxe est bonne.
+
+Le coupable est, après de longue recherche et test, AppArmor. Apparmor bloque le service kea-dhcp et nécessite de créer, que ce soit temporaire ou permanent, une autorisation pour que le service soit fonctionnel
+
+En solution temporaire de fortune mais fonctionnel, j'ai ajouté une entrée dans cron pour que au boot de la machine, la commande soit automatiquement validé et le service fonctionnem
+
+```bash
+@reboot    apparmor_parser -R /etc/apparmor.d/usr.sbin.kea-dhcp4
+```
+
+4) **kea-dhcp & cle TSIG**
+
+J'ai rencontré une autre difficulté en cours de route, lors de la génération de la clé TSIG pour kea-dhcp, le serveur DHCP n'a jamais voulu validé l'utilisation de la clé et se mettait constamment en erreur.
+
+Alternative un peu moins sûre mais tolérable, est d'inscrire en solide la clé dans la configuration
+
+5) **Répertoire `/etc/bind/`**
+
+Il y'a un détail intéressant sur bind, ou plutôt sur le répertoire `/etc/bind`. Par défaut, bind est ***incapable*** de travailler dans ce répertoire sans avoir à casser les permissions Unix, c'est de ce fait, que les zones DNS sont enregistrés dans le dossier `/var/cache/bind/`
+
+***
 
 ### Objectif
 
-- Automatiser l'attribution des adresses IP via DHCP.
-- Configurer un service DNS pour la résolution des noms de machines.
-- Mettre en place les mises à jour DNS dynamiques.
+- Automatiser l'attribution des adresses IP via DHCP
+- Configurer un service DNS pour la résolution des noms de machines
+- Mettre en place les mises à jour DNS dynamiques
 - Vérifier la cohérence entre les adresses IP attribuées et les enregistrements DNS.
-- Valider le fonctionnement de l'infrastructure à l'aide de tests.
+- Valider le fonctionnement de l'infrastructure à l'aide de tests
 - Reduction des SPOF
 - Utilisation de clé TSIG pour sécuriser l'échange entre les DHCP et les DNS, mais aussi pour la réplication entre DNS
 
@@ -64,9 +92,9 @@ Avant de commencer, il y'a plusieurs points intéressants et important, qui m'on
 
 ### OPNsense
 
-La première étape est, de configurer les port sur OPNSense pour leur assigner un interface et une adresse IP
+La première étape csonsite, à configurer les port sur OPNSense pour leur assigner un interface et une adresse IP
 
-Ensuite mettre en place le relais DHCP, pour permettre à mon LAN clients de communiquer avec le LAN où, les serveurs DHCP se situent et permettre de transmettre les messages DHCP.
+Ensuite mettre en place le relais DHCP, pour permettre à mon LAN client de communiquer avec le LAN où, les serveurs DHCP se situent et permettre de transmettre les messages DHCP.
 
 ![dhcp relay](./illustration/dhcp-relay.png)
 

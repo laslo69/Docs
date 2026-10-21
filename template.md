@@ -8,6 +8,8 @@
 
 ### Objectif
 
+### Difficulte & Observation
+
 ## Architecure & Environnement
 
 ## Configuration
