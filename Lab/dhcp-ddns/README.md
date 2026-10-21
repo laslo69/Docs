@@ -542,9 +542,25 @@ echo "test" > /etc/kea/kea-api-password
 
 ### DNS
 
-#### Déclaration zone DNS
+#### Déclaration zone - Master
 
-named.conf.local
+Le fichier peut être copié sur le DNS secondaire mais nécessite des légères modifications
+
+Le fichier `named.conf.local` va servire à déclarer les zones DNS dont le serveur fait autorité, chaque zone doit être renseigné.
+
+Dans le cas d'une haute disponibilité de bind, la designation de rôle est nécessaire pour désigner qui à quel rôle dans la relation master/slave
+
+La génération d'une clé TSIG et l'utilisé pour le transfert de zone AXFR ou IXFR est recommandé pour pouvoir, par le biais d'une signature, de contrôler les serveurs DNS qui ont l'autorisation d'envoyer ou recevoir des mises à jours
+
+Aussi, l'utilisation des clés DDNS généré sur les serveurs DHCP va permettre d'authentifier et d'autoriser les mises à jours provenant uniquement de ces serveurs, l'utilisation de clé distincte entre DHCP et DNS est recommandé
+
+- include : Renseigne les clés DNS
+- zone :    Défini le rôle, emplacement et autorisation du serveur sur la zone
+    - type : Peux être soit master ou slave
+    - file : Désigne l'emplacement logique de la zone
+    - allow-update : Définie explicitement, quels serveurs à le droit de mettre à jour le DNS, ici par le biais d'une clé TSIG
+    - allow-transfer :  Autorise le serveur DNS, à pouvoir faire un transfert de zone vers un serveur membre de la High-availability
+    - notify :  Lors d'une mise à jour DNS, signale les membres de la haute-disponibilité du mise à jour, un échange IXFR à lieu pour mettre à jours les DNS slave, voir dans la configuration du DNS slave pour faire la jonction
 
 ```bash
 include "/etc/bind/key/ma-cle-tsig.key";
@@ -558,7 +574,6 @@ zone "lab.lan"
     allow-transfer { key "ma-cle-tsig.key; };
     notify yes;
 };
-
 zone "10.168.192.in-addr.arpa"
 {
     type master;
@@ -567,7 +582,6 @@ zone "10.168.192.in-addr.arpa"
     allow-transfer { key "ma-cle-tsig.key; };
     notify yes;
 };
-
 zone "lab.lan"
 {
     type master;
@@ -575,6 +589,52 @@ zone "lab.lan"
     allow-update { key "ma-cle-ddns.key"; };
     allow-transfer { key "ma-cle-tsig.key; };
     notify yes;    
+};
+```
+
+#### Déclaration zone - Slave
+
+Il y'a un détail important dans une relation Master/slave avec bind lors de la déclaration des zones
+
+La déclaration est très similaire mais nécessite des corrections
+
+- La déclaration des clés reste inchangé
+- Le type de la zone doit être "slave"
+
+Cependant, il faut ajouter 2 lignes
+
+- masters { 192.168.10.5 key "ma-cle-tsig.key"; };
+- allow-update-forwarding { key "ma-cle-tsig.key"; };
+
+Pour expliquer l'utilité de ces lignes et l'importance
+
+- masters : Bind ne sait pas faire du load-balancing, mais uniquement du fail-over. En désignant le serveur "master", le serveur sait à quelle addresse IP demander des mises à jours DNS.
+- allow-update-forwarding : Imaginons que le DNS master tombe, mais que le serveur secondaire enregistre les nouvelles requêtes, quand le "master" reviens en état fonctionnel, il y'aura une incohérence dans les enregistrements. Cette options sert à signalé au "master", qu'il à un numéro de série supérieur et va donc lui transmettre les enregistrements pour le mettre à jour
+
+```bash
+include "/etc/bind/key/ma-cle-tsig.key";
+include "/etc/bind/key/ma-cle-ddns.key";
+
+zone "lab.lan"{
+    type slave;
+    masters { 192.168.10.5 key "ma-cle-tsig.key"; };
+    file "/var/cache/bind/db.lab.lan";
+    allow-transfer { key "ma-cle-ddns.key"; } ;
+    allow-update-forwarding { ma-cle-tsig.key"; };
+};
+zone "10.168.192.in-addr.arpa"{
+    type slave;
+    masters { 192.168.10.5 key "ma-cle-tsig.key"; };
+    file "/var/cache/bind/db.lab.lan";
+    allow-transfer { key "ma-cle-ddns.key"; } ;
+    allow-update-forwarding { ma-cle-tsig.key"; };
+};
+zone "20.168.192.in-addr.arpa"{
+    type slave;
+    masters { 192.168.10.5 key "ma-cle-tsig.key"; };
+    file "/var/cache/bind/db.lab.lan";
+    allow-transfer { key "ma-cle-ddns.key"; } ;
+    allow-update-forwarding { ma-cle-tsig.key"; };
 };
 ```
 
@@ -636,7 +696,18 @@ dhcp-ddns-2.lab.lan.    A               192.168.10.6
 
 #### Configuration DNS
 
-named.conf.options
+Le fichier `named.conf.options` va permettre de définir des règles de fonctionnement du DNS et peut être copié sur chaque serveur DNS
+
+Ces règles peuvent être du filtrage, comment rediriger une requête si elle est destiné à un réseau extérieur du domaine local, définir les interfaces d'écoute
+
+- ACL : Ce bloc va permettre de définir, quels réseaux sont autorisé à envoyer des requêtes sur le serveur DNS
+- Options : Contient différentes directives sur le fonctionnement du DNS
+    - Directory : Renseigne le répertoire de travail de bind et contient les zones DNS
+    - Version   : Dans le cas d'un scan réseau, le numéro de version de bind peut apparaitre. Ajouter une valeur fictive va permettre de masquer la version de bind
+    - Forwarders : Renseigne des DNS externes, dans le cas ou une résolution DNS ne correspond à aucun enregistrement local
+- Recursion : Va permettre d'autoriser ( dans le cas de "yes" ) de résoudre des noms de domaines dont le serveur, n'est pas le serveur d'autorité sur le domain en question
+- listen-on { any; }    : Spécifie l'interface d'écoute des requêtes DNS
+- allow-query { lan; }; : Utilisé avec une ACL bind, va permettre d'autoriser uniquement la ou les ACL renseigner, à envoyé des requêtes sur le serveur DNS
 
 ```bash
 acl "lan"{
@@ -653,7 +724,6 @@ options {
         9.9.9.9;
     };
     recursion yes;
-    dnssec-validation auto;
     listen-on { any; };
     allow-query { lan; };
 };
