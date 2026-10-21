@@ -1,56 +1,29 @@
-# Sujet
+# Titre
 
-## Presentation du projet
+## Projet
 
 ### Contexte
 
-Bref paragraphe
-
 ### Problematique
 
-introduire la problematique
+### Objectif
 
-### Objectifs
+## Architecure & Environnement
 
-introduire les objectifs vise et quel probleme sera resolu
+## Configuration
 
-## Architecture et environnement technique
+### Conf 1
 
-### Environnement utilisé
+#### conf 1.1
 
-Element / OS / paquet / Hyperviseur
+### Conf 2
 
-### Plan d'adressage IP
+#### conf 2.1
 
-adressa IP + schema
+## Contrôle
 
-## Installation et configuration
+### Contrôle 1
 
-### Configuration 1
+### Contrôle 2
 
-chaque partie de configuration doit pouvoir être formulé par:
-
-- Quoi ? Que fait cette instruction ?
-- Pourquoi ? Pourquoi ce paramètre est-il nécessaire dans ton infrastructure ?
-- Comment le vérifier ? Quelle commande ou quel test permet de confirmer son fonctionnement ?
-
-extrait de configuration avec brêve explication
-
-### Configuration 2
-
-### Configuration 3
-
-...
-
-## Tests et validation
-
-Test unitaire et documente
-
-### Test 1
-
-### Test 2
-
-...
-
-## Annexes
-
+## Annexe

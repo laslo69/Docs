@@ -1,12 +1,16 @@
 # DHCP & DNS en haute disponibilite
 
-## Contexte
+## Projet
+
+### Contexte
 
 Dans le cadre de ce projet, j'ai mis en place une infrastructure réseau sous Linux associant un service DHCP à un service DNS dynamique (DDNS).
 
 L'objectif est d'automatiser l'attribution des adresses IP aux clients et de maintenir à jour les enregistrements DNS correspondants, le tout en sécurisant les échange entre les DHCP et les DNS.
 
-## Problematique
+**Fichiers de configuration complet en annexe**
+
+### Problematique
 
 Comment automatiser l'attribution des adresses IP et la mise à jour des enregistrements DNS afin de simplifier l'administration d'un réseau ?
 
@@ -14,10 +18,9 @@ Comment faire en sorte, de sécuriser l'échange pour s'assurer qu'un serveur DN
 
 Si un des serveurs DHCP ou DNS tombe en panne, comment rendre l'infrastructure résiliante ?
 
-## Objectif
+### Objectif
 
 - Automatiser l'attribution des adresses IP via DHCP.
-
 - Configurer un service DNS pour la résolution des noms de machines.
 - Mettre en place les mises à jour DNS dynamiques.
 - Vérifier la cohérence entre les adresses IP attribuées et les enregistrements DNS.
@@ -28,9 +31,11 @@ Si un des serveurs DHCP ou DNS tombe en panne, comment rendre l'infrastructure r
 ## Architecture et Environnement
 
 - Hyperviseur : Proxmox
-
 - Système d'exploitation : OPNsense, Debian
-- Service DHCP : kea-dhcp
+- Service DHCP :
+    - kea-dhcp4-server
+    - kea-dhcp-ddns-server
+    - kea-ctrl-agent
 - Service DNS : Bind9
 - Réseau :
     - LAN local : 192.168.0.0/24
@@ -39,21 +44,13 @@ Si un des serveurs DHCP ou DNS tombe en panne, comment rendre l'infrastructure r
 
 ![topologie](./illustration/topologie.png)
 
-## Installation et configuration
-
-Les paquets requis pour la configuration des DHCP et DNS:
-
-- kea-dhcp4-server
-
-- kea-dhcp-ddns-server
-- kea-ctrl-agent
-- bind9
-
-***
+## Configuration
 
 ### OPNsense
 
-Un des premier éléments à mettre en place, est le DHCP relay, pour permettre à mon LAN clients de communiquer avec le LAN où, les serveurs DHCP se situe et permettre de transmettre les messages DHCP
+La première étape est, de configurer les port sur OPNSense pour leur assigner un interface et une adresse IP
+
+Ensuite mettre en place le relais DHCP, pour permettre à mon LAN clients de communiquer avec le LAN où, les serveurs DHCP se situent et permettre de transmettre les messages DHCP.
 
 ![dhcp relay](./illustration/dhcp-relay.png)
 
@@ -61,65 +58,66 @@ Un des premier éléments à mettre en place, est le DHCP relay, pour permettre 
 
 ### DHCP
 
-Kea-dhcp enregistre touts les leases dans un fichier créer lors de l'installation, qui se situe dans : `/var/lib/kea/kea-leases4.csv` et est mis à jour automatiquement
+Kea-dhcp enregistre touts les leases dans un fichier créer lors de l'installation, qui se situe dans : `/var/lib/kea/kea-leases4.csv` et est mis à jour dynamiquement
 
-Les fichiers de configurations du serveur DHCP principale peuvent être copié sur l'autre serveur, pour être sûr d'avoir une configuration identique
+Les fichiers de configurations du serveur DHCP principale peuvent être copié sur l'autre serveur, pour être sûr d'avoir une configuration identique mais nécessiterons d'être adapté sur certains points
 
-Note : La configuration du DHCP se fait en `JSON`
+Note : La configuration du DHCP,DDNS et du control-agent se fait en `JSON`
 
 #### Configuration DHCP
 
-Le fichier `/etc/kea/kea-dhcp4.conf` étant déja existant lors de l'installation, il est recommandé de faire un copie du fichier de base.
+Le fichier `/etc/kea/kea-dhcp4.conf` étant déja existant lors de l'installation, il est recommandé de faire un copie du fichier de base avant de faire toutes modifications
 
 La configuration du  bloc DHCP se compose de plusieurs sections:
 
 - Timers
-
 - Interface
 - Gestion leases
 - Gestion Sous-réseaux, pools & options DHCP
 
 ***
 
-Explications sur la configuration de chaque bloc
+Eplications sur la configuration de chaque bloc avec un exemple
 
-1) Timers ( en secondes )
+1) **Timers ( exprimé en secondes )**
 
 La définissions des timers, va permettre de donner les directives de, quand demander une mise à jour du lease, sa durée de vie et dans le cas échéant, supprimer le lease obsolète du fichier de leases
 
-- "valid-lifetime": 2000 : Durée validité du leases
+- "valid-lifetime": 2000  : Durée validité du leases
 - "renew-timer": 500      : Timer T1, délais avant l'émission d'un message DHCP RENEW afin de conserver le lease 
 - "rebind-timer": 1000    : Timer T2, similaire à renew-timer mais se produit dans le cas ou, le serveur DHCP ne répond pas à la requête du "renew-timer"
 
 ***
 
-2) Interface
+2) **Interface**
 
 Spécifie l'interface d'écoute pour la réception de trame DHCP, plusieurs interfaces peuvent être spécifié
+
+Par défaut, l'interface écoute en " raw ", ce qui permet de traiter tous les messages DHCP, dans le cas où, le DHCP est un relais DHCP, il est nécessaire de mettre l'interface en écoute " UDP "
 
 - "interfaces": [ "ens18" ] : Désigne l'interface d'écoute pour la réception de message DHCP
 
 ***
 
-3) Gestion leases
+3) **Gestion leases**
 
-Configure le comportement de kea-dhcp4, sur comment les leases doivent être stockés, ou, comment gérer la supppression de lease obsolète et le nombre d'erreurs autoriser avant que le fichier, ne soit plus lu
+Configure le comportement de kea-dhcp4, sur comment les leases doivent être stockés, ou, comment gérer la supppression des leases obsolète et le nombre d'erreurs autoriser avant que le fichier, ne soit plus lu
 
 - "type": "memfile" : Désigne comment enregistrer les leases, "memfile" est le fichier `/var/lib/kea/kea-leases4.csv`
-
 - "persist": true : Dans le cas d'un redémarrage, les leases restent enregistrer dans le fichiers
 - "name": "/var/lib/kea/kea-leases4.csv" : Chemin du fichiers de lease
 - "lfc-interval": 800 : Délai avant que le fichier contenant les leases soit nettoyer de tout les enregistrements anciens
 - "max-row-errors": 100 : définit le nombre maximal de lignes corrompues ou erronées que Kea tolérera lors de la lecture d'un fichier de bail avant d'interrompre le chargement et de se fermer
 
+**Note : L'utilisation du "memfile" est valide dans le cas d'un DHCP unique ou d'un ensemble de 2 DHCP en High-availability. Dans le cas ou 3 serveurs DHCP ou plus sont utilisés en cluster, il sera nécessaire de passer par une BDD**
+
 ***
 
-4) Gestion sous-réseaux
+4) **Gestion sous-réseaux**
 
 Définission des réseaux, dont l'attribution des IP,option DHCP et pools, est géré par kea-dhcp
 
 - "id": 1 : ID du réseau à déclarer, à incrémenter pour chaque nouveau réseau
-
 - "subnet": "192.168.10.0/24" : Définir le réseau au format CIDR
 - "pools": : Déclaration du/des pools réseau, plusieurs pools peuvent être déclaré tant que, non chevauchant
 - "pool": "192.168.10.20 - 192.168.10.30"
@@ -216,16 +214,16 @@ Définission des réseaux, dont l'attribution des IP,option DHCP et pools, est g
 
 La configuration du DHCP-DDNS se fait à travers 2 fichiers
 
-- kea-dhcp4.conf
+- `kea-dhcp4.conf`
+- `kea-dhcp-ddns.conf`
 
-- kea-dhcp-ddns.conf
+***
 
 **kea-dhcp4.conf**
 
-Dans le fichier `kea-dhcp4.conf`, la configuration du DDNS va permettre d'indiquer, à kea-dhcp, comment interagir entre le DHCP et le service kea-ddns, mais aussi comment le NCR ( Name Change Request ) doit compléter le fonctionnement du ddns
+Dans le fichier `kea-dhcp4.conf`, la configuration du service kea-ddns va permettre d'indiquer, à kea-dhcp, comment interagir entre le DHCP et le service DDNS, mais aussi comment le NCR ( Name Change Request ) doit compléter le fonctionnement du ddns et la mise à jour des enregistrements DNS
 
 - "enable-updates": true : Active globalement l'envoi des requêtes de mise à jour DNS par le serveur DHCP
-
 - "server-ip": "127.0.0.1" : adresse IP sur laquelle le démon DDNS écoute
 - "server-port": 53001 : Port réseau utilisé par Kea DDNS pour recevoir les demandes du serveur DHCP
 - "sender-port": 0 : Port source utilisé par le serveur DHCP pour envoyer ses messages. 0 indique à Kea de laisser le système d'exploitation choisir un port éphémère libre de manière dynamique
@@ -258,6 +256,10 @@ Dans le fichier `kea-dhcp4.conf`, la configuration du DDNS va permettre d'indiqu
 ...
 ```
 
+***
+
+**kea-ddns.conf**
+
 Le fichier `kea-ddns.conf` va permettre, de spécifier comment le service DHCP-DDNS va communiquer avec le serveur DNS pour pouvoir, ajouter/modifier des enregistrements
 
 Le bloc "tsig-keys" permet de renseigner une clé TSIG, qui sera ajouté sur les serveurs DNS pour autoriser les ajouts DNS provenant de ce DHCP, via l'authentification par la clé TSIG
@@ -267,6 +269,30 @@ La section forward-ddns va permettre de spécifier, vers quel serveur pousser le
 La déclaration des zones, qu'elles soient directe comme inverse se fait de la même manière
 
 Dans ce bloc, l'utilisation de la clé TSIG va permettre de signer les requêtes DNS provenant du DDNS en direction du DNS
+
+La clé TSIG peut être générer avec la commande `tsig-keygen -a hmac-sha256 my-tsig-key > /etc/bind/key/ma-cle-ddns.key`
+
+- "tsig-keys":    Déclaration de la clé TSIG
+- "name": "ma-cle-ddns.key"     : Nom de la clé TSIG
+- "algorithm": "hmac-sha256"    : Algorithme utilisé par la clé
+- "secret": "HGj/s1alczSQMz8GAmVG/nwIsd0JiDxTX2whyXpk+MA="  : Secret de la clé
+
+"forward-ddns" et "reverse-ddns" se déclare de la même façon
+
+- "forward-ddns":
+- "ddns-domains":
+- "name": "lab.lan."    : Nom de la zone à mettre à jour
+- "key-name": "ma-cle-ddns.key" : Déclaration de la clé pour signer les mise à jours DNS
+- "dns-servers":        : Déclaration des serveurs DNS
+- "ip-address": "192.168.10.5" : Adresse IP du serveur DNS
+- "port": 53    : Port écoute du server DNS
+- "reverse-ddns":
+- "ddns-domains":
+- "name": "10.168.192.in-addr.arpa.",
+- "key-name": "ma-cle-ddns.key",
+- "dns-servers":
+- "ip-address": "192.168.10.5",
+- "port": 53
 
 ```json
 {
@@ -343,7 +369,7 @@ Dans ce bloc, l'utilisation de la clé TSIG va permettre de signer les requêtes
 
 #### Configuration reservation
 
-Le bloc réservation, va permettre de créer les réserrvations pour des clients DHCP et est assez simple à gérer
+Le bloc réservation, va permettre de créer les réservations pour des clients DHCP, et est assez simple à gérer
 
 - "hw-address": "bv:24:11:37:b5:a2" : Spécifie l'adresse MAC de l'interface du client
 - "ip-address": "192.168.20.10", : Désigne une adresse IP réservé pour le client avec l'adresse MAC correspondante
@@ -385,15 +411,14 @@ Le bloc réservation, va permettre de créer les réserrvations pour des clients
 
 #### Configuration Load-balance
 
-La configuration du load-balance passe par des "hooks", qui peuvent fonctionner de 2 façon différents
+La configuration du load-balance passe par des "hooks", qui peuvent fonctionner en 2 modes différent, qui est géré nativement par kea-dhcp, ce qui évite de passer par des outils intermédiaire
 
 - fail-over
 - load-balance
 
-Dans le bloc " high-availability ", il faut spécifié, le mode de fonctionnement, les timers du heartbeat et les pairs
+Dans le bloc " high-availability ", il faut spécifié, le mode de fonctionnement, les timers du heartbeat, le nom du serveur local et les pairs membres
 
 - "this-server-name": "dhcp-ddns-1" : Décrit le nom du serveur actuel, si le fichier est copié, modifier le nom pour les autres serveurs
-
 - "mode": "load-balancing" : Défini le mode de high availability
 - "heartbeat-delay": 10000 : Définit le timer du heartbeat en `ms`
 - "max-response-delay": 60000 : Délai imparti avant de considéré un pair, comme étant down
@@ -406,6 +431,7 @@ Dans le bloc " high-availability ", il faut spécifié, le mode de fonctionnemen
 - "password": "test" : mot de passe défini dans `/etc/kea/kea-api-password` et du chemin défini dans `/etc/kea/kea-ctrl-agent`
 
 ```json
+...
 "hooks-libraries":
         [
             {
@@ -445,18 +471,17 @@ Dans le bloc " high-availability ", il faut spécifié, le mode de fonctionnemen
                 }
             }
         ],
+...
 ```
 
 #### DHCP control agent
 
-Kea-ctrl-agent est un paquet, qui va permettre de configurer l'API de kea-dhcp pour le fonctionnement en load-balancing
-
-Dans le fichier `/etc/kea/kea-ctrl-agent.conf`, il y'a 2 bloc à modifier
+Dans le fichier `/etc/kea/kea-ctrl-agent.conf`, il y'a 2 blocs à modifier
 
 - "control-agent"
 - "authentication"
 
-Contrôle agent va servir à configurer comment l'API doit communiquer avec la fonction de load-balancing et contrôler l'authentification des serveurs DHCP
+Contrôle agent va servir à configurer comment l'API doit communiquer  et contrôler l'authentification des serveurs DHCP
 
 "http-host": "0.0.0.0" : Indique l'IP à écouté
 "http-port": 8000 : Indique le port utilisé ( 8000 par défaut )
