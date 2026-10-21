@@ -88,7 +88,7 @@ Explications sur la configuration de chaque bloc
 La définissions des timers, va permettre de donner les directives de, quand demander une mise à jour du lease, sa durée de vie et dans le cas échéant, supprimer le lease obsolète du fichier de leases
 
 - "valid-lifetime": 2000 : Durée validité du leases
-- "renew-timer": 500      : Timer T1, délais avant l'émission d'un message DHCP REQUEST afin de conserver le lease 
+- "renew-timer": 500      : Timer T1, délais avant l'émission d'un message DHCP RENEW afin de conserver le lease 
 - "rebind-timer": 1000    : Timer T2, similaire à renew-timer mais se produit dans le cas ou, le serveur DHCP ne répond pas à la requête du "renew-timer"
 
 ***
