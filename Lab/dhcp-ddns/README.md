@@ -22,6 +22,18 @@ Si un des serveurs DHCP ou DNS tombe en panne, comment rendre l'infrastructure r
 
 ***
 
+### Difficulte & Observation
+
+Avant de commencer, il y'a plusieurs points intéressants et important, qui m'ont fait perdre du temps bêtement, que je souhaite aborder
+
+1) La configuration JSON
+
+2) Kea-dhcp & apparmor
+
+3) kea-dhcp & cle TSIG
+
+4) Répertoire `/etc/bind/`
+
 ### Objectif
 
 - Automatiser l'attribution des adresses IP via DHCP.
@@ -32,7 +44,7 @@ Si un des serveurs DHCP ou DNS tombe en panne, comment rendre l'infrastructure r
 - Reduction des SPOF
 - Utilisation de clé TSIG pour sécuriser l'échange entre les DHCP et les DNS, mais aussi pour la réplication entre DNS
 
-## Architecture et Environnement
+## Architecture & Environnement
 
 - Hyperviseur : Proxmox
 - Système d'exploitation : OPNsense, Debian
@@ -640,14 +652,15 @@ zone "20.168.192.in-addr.arpa"{
 
 #### Création zone DNS
 
-creation zone
+La création des zones doit se fare dans le répertoire `/var/cache/bind/`, comme désigné dans le fichier de configuration
+
+**zone directe**
 
 ```bash
-zone directe
 $ORIGIN lab.lan 
 $TTL 86400 
                 @   	IN  	SOA 	dns1.lab.lan.	admin.lab.lan. (
-                                        2001062501 ; serial                     
+                                        1          ; serial                     
                                         21600      ; refresh after 6 hours                     
                                         3600       ; retry after 1 hour                     
                                         604800     ; expire after 1 week                     
@@ -658,15 +671,13 @@ dhcp-ddns-1.lab.lan.    A               192.168.10.5
 dhcp-ddns-2.lab.lan.    A               192.168.10.6
 ```
 
-zone reverse
-
-LAN 10
+**zone reverse LAN 10**
 
 ```bash
 $ORIGIN lab.lan 
 $TTL 86400 
                 @   	IN  	SOA 	dns1.lab.lan.	admin.lab.lan. (
-                                        2001062501 ; serial                     
+                                        1          ; serial                     
                                         21600      ; refresh after 6 hours                     
                                         3600       ; retry after 1 hour                     
                                         604800     ; expire after 1 week                     
@@ -677,13 +688,13 @@ dhcp-ddns-1.lab.lan.    A               192.168.10.5
 dhcp-ddns-2.lab.lan.    A               192.168.10.6
 ```
 
-LAN 20
+**zone reverse LAN 20**
 
 ```bash
 $ORIGIN lab.lan 
 $TTL 86400 
                 @   	IN  	SOA 	dns1.lab.lan.	admin.lab.lan. (
-                                        2001062501 ; serial                     
+                                        1          ; serial                     
                                         21600      ; refresh after 6 hours                     
                                         3600       ; retry after 1 hour                     
                                         604800     ; expire after 1 week                     
