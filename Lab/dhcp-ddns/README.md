@@ -8,7 +8,7 @@ Dans le cadre de ce projet, j'ai mis en place une infrastructure réseau sous Li
 
 L'objectif est d'automatiser l'attribution des adresses IP aux clients et de maintenir à jour les enregistrements DNS correspondants, le tout en sécurisant les échange entre les DHCP et les DNS.
 
-**Fichiers de configuration complet en annexe**
+***Fichiers de configuration complet en annexe***
 
 ***
 
