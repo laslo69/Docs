@@ -776,9 +776,17 @@ serie de test
 
 dhcp primary seul pour attribution ip
 
+![dhcp-alone](./illustration/dhcp-alone.png)
+
 dhcp en ha pour replication fichier lease
 
+![dhcp-ha](./illustration/dhcp-ha.png)
+
 dhcp 1 off pour voir si dhcp 2 attribue une ip
+
+![dhcp-sync-1](./illustration/dhcp-sync-1.png)
+
+![dhcp-sync-2](./illustration/dhcp-sync-2.png)
 
 ### DNS
 
