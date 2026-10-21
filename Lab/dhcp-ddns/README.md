@@ -792,6 +792,10 @@ dhcp 1 off pour voir si dhcp 2 attribue une ip
 
 dns 1 seul ajout dhcp client dans dns
 
+![dns-alone](./illustration/dns-alone.png)
+
+![dns-alone-nslookup](./illustration/dns-alone-nslookup.png)
+
 dns 1 + 2 pour check axfr/ixfr
 
 dns2 pour voir si dhcp ajoute bien dans secondary
