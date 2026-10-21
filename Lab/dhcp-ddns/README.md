@@ -10,6 +10,8 @@ L'objectif est d'automatiser l'attribution des adresses IP aux clients et de mai
 
 **Fichiers de configuration complet en annexe**
 
+***
+
 ### Problematique
 
 Comment automatiser l'attribution des adresses IP et la mise à jour des enregistrements DNS afin de simplifier l'administration d'un réseau ?
@@ -17,6 +19,8 @@ Comment automatiser l'attribution des adresses IP et la mise à jour des enregis
 Comment faire en sorte, de sécuriser l'échange pour s'assurer qu'un serveur DNS non autorisé ne puisse pas se synchroniser avec les DNS existant ?
 
 Si un des serveurs DHCP ou DNS tombe en panne, comment rendre l'infrastructure résiliante ?
+
+***
 
 ### Objectif
 
@@ -63,6 +67,8 @@ Kea-dhcp enregistre touts les leases dans un fichier créer lors de l'installati
 Les fichiers de configurations du serveur DHCP principale peuvent être copié sur l'autre serveur, pour être sûr d'avoir une configuration identique mais nécessiterons d'être adapté sur certains points
 
 Note : La configuration du DHCP,DDNS et du control-agent se fait en `JSON`
+
+***
 
 #### Configuration DHCP
 
@@ -210,12 +216,14 @@ Définission des réseaux, dont l'attribution des IP,option DHCP et pools, est g
 }
 ```
 
+***
+
 #### Configuration DHCP-DDNS
 
 La configuration du DHCP-DDNS se fait à travers 2 fichiers
 
-- `kea-dhcp4.conf`
-- `kea-dhcp-ddns.conf`
+- kea-dhcp4.conf
+- kea-dhcp-ddns.conf
 
 ***
 
@@ -367,6 +375,8 @@ La clé TSIG peut être générer avec la commande `tsig-keygen -a hmac-sha256 m
 }
 ```
 
+***
+
 #### Configuration reservation
 
 Le bloc réservation, va permettre de créer les réservations pour des clients DHCP, et est assez simple à gérer
@@ -408,6 +418,8 @@ Le bloc réservation, va permettre de créer les réservations pour des clients 
                 ]
 ...
 ```
+
+***
 
 #### Configuration Load-balance
 
@@ -474,6 +486,8 @@ Dans le bloc " high-availability ", il faut spécifié, le mode de fonctionnemen
 ...
 ```
 
+***
+
 #### DHCP control agent
 
 Dans le fichier `/etc/kea/kea-ctrl-agent.conf`, il y'a 2 blocs à modifier
@@ -483,8 +497,8 @@ Dans le fichier `/etc/kea/kea-ctrl-agent.conf`, il y'a 2 blocs à modifier
 
 Contrôle agent va servir à configurer comment l'API doit communiquer  et contrôler l'authentification des serveurs DHCP
 
-"http-host": "0.0.0.0" : Indique l'IP à écouté
-"http-port": 8000 : Indique le port utilisé ( 8000 par défaut )
+- "http-host": "0.0.0.0" : Indique l'IP à écouté
+- "http-port": 8000 : Indique le port utilisé ( 8000 par défaut )
 
 ```bash
 {
@@ -524,11 +538,13 @@ Il faut bien penser à créer le fichier `/etc/kea/kea-api-password` dans `/etc/
 echo "test" > /etc/kea/kea-api-password
 ```
 
+***
+
 ### DNS
 
 #### Déclaration zone DNS
 
-namd.conf.local
+named.conf.local
 
 ```bash
 include "/etc/bind/key/ma-cle-tsig.key";
