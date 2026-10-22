@@ -258,7 +258,7 @@ Définission des réseaux, dont l'attribution des IP,option DHCP et pools, est g
                         "data": "lab.lan"
                     },
                     {
-                        "name": "domain-search";
+                        "name": "domain-search",
                         "data": "lab.lan"
                     },
                     {
@@ -690,14 +690,14 @@ zone "lab.lan"{
 zone "10.168.192.in-addr.arpa"{
     type slave;
     masters { 192.168.10.5 key "ma-cle-tsig.key"; };
-    file "/var/cache/bind/db.lab.lan";
+    file "/var/cache/bind/db-reverse10.lab.lan";
     allow-transfer { key "ma-cle-tsig.key"; } ;
     allow-update-forwarding { "ma-cle-ddns.key"; };
 };
 zone "20.168.192.in-addr.arpa"{
     type slave;
     masters { 192.168.10.5 key "ma-cle-tsig.key"; };
-    file "/var/cache/bind/db.lab.lan";
+    file "/var/cache/bind/db-reverse20.lab.lan";
     allow-transfer { key "ma-cle-tsig.key"; } ;
     allow-update-forwarding { key "ma-cle-ddns.key"; };
 };
@@ -909,7 +909,7 @@ Sans surprise, la résolution DNS est fonctionnel
             "server-ip": "127.0.0.1",
             "server-port": 53001,
             "sender-port": 0,
-            "ncr-protocole": "UDP",
+            "ncr-protocol": "UDP",
             "ncr-format": "JSON"
         },
         "ddns-send-updates": true,
@@ -918,7 +918,7 @@ Sans surprise, la résolution DNS est fonctionnel
         "ddns-qualifying-prefix": "lab.lan",
         "ddns-generated-prefix": "dhcp",
         "ddns-replace-client-name": "when-not-present",
-        "valide-lifetime": 2000,
+        "valid-lifetime": 2000,
         "renew-timer": 500,
         "rebind-timer": 1000,
         "interfaces-config":
@@ -984,7 +984,7 @@ Sans surprise, la résolution DNS est fonctionnel
                         "data": "lab.lan"
                     },
                     {
-                        "name": "domain-search";
+                        "name": "domain-search",
                         "data": "lab.lan"
                     },
                     {
@@ -1167,7 +1167,7 @@ zone "lab.lan"
     type master;
     file "/var/cache/bind/db.lab.lan";
     allow-update { key "ma-cle-ddns.key"; };
-    allow-transfer { key "ma-cle-tsig.key; };
+    allow-transfer { key "ma-cle-tsig.key"; };
     notify yes;
 };
 zone "10.168.192.in-addr.arpa"
@@ -1175,7 +1175,7 @@ zone "10.168.192.in-addr.arpa"
     type master;
     file "/var/cache/bind/db-reverse10.lab.lan";
     allow-update { key "ma-cle-ddns.key"; };
-    allow-transfer { key "ma-cle-tsig.key; };
+    allow-transfer { key "ma-cle-tsig.key"; };
     notify yes;
 };
 zone "lab.lan"
@@ -1183,7 +1183,7 @@ zone "lab.lan"
     type master;
     file "/var/cache/bind/db-reverse20.lab.lan";
     allow-update { key "ma-cle-ddns.key"; };
-    allow-transfer { key "ma-cle-tsig.key; };
+    allow-transfer { key "ma-cle-tsig.key"; };
     notify yes;    
 };
 ```
@@ -1249,14 +1249,13 @@ options {
 #### zone directe
 
 ```bash
-$ORIGIN lab.lan 
-$TTL 86400 
-                @   	IN  	SOA 	dns1.lab.lan.	admin.lab.lan. (
-                                        1          ; serial                     
-                                        21600      ; refresh after 6 hours                     
-                                        3600       ; retry after 1 hour                     
-                                        604800     ; expire after 1 week                     
-                                        86400 )    ; minimum TTL of 1 day  
+$TTL 86400
+lab.lan .       @   	IN  	SOA 	dns1.lab.lan.	admin.lab.lan. (
+                                        1; serial                     
+                                        21600 ; refresh                     
+                                        3600; retry                     
+                                        604800; expire                     
+                                        86400 ); minimum TTL  
                                 NS      dhcp-ddns-1.lab.lan.
                                 NS      dhcp-ddns-2.lab.lan.
 dhcp-ddns-1.lab.lan.    A               192.168.10.5
