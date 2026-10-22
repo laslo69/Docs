@@ -6,4 +6,4 @@ Il me sert à centraliser mes notes, documenter mes configurations et expérimen
 
 ## Linux
 
-- [DHCP & DNS en haute disponibilite](./Lab/Linux/dhcp-ddns/README.md)
+- [DHCP & DNS dynamique en haute disponibilite](./Lab/Linux/dhcp-ddns/README.md)
