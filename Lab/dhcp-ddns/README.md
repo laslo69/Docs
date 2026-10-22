@@ -22,6 +22,17 @@ Si un des serveurs DHCP ou DNS tombe en panne, comment rendre l'infrastructure r
 
 ***
 
+### Objectif
+
+- Automatiser l'attribution des adresses IP via DHCP
+- Configurer du service DNS pour la résolution de nom
+- Mettre en place les mises à jour DNS dynamiques
+- Vérifier la cohérence entre les adresses IP attribuées et les enregistrements DNS.
+- Valider le fonctionnement de l'infrastructure à l'aide de tests
+- Utilisation de clé TSIG pour sécuriser l'échange entre les DHCP et les DNS, mais aussi pour la réplication entre DNS
+
+***
+
 ### Difficulte & Observation
 
 Avant de commencer, il y'a plusieurs points intéressants et important, qui m'ont fait perdre du temps bêtement, que je souhaite aborder
@@ -60,17 +71,15 @@ Alternative un peu moins sûre mais tolérable, est d'inscrire en solide la clé
 
 Il y'a un détail intéressant sur bind, ou plutôt sur le répertoire `/etc/bind`. Par défaut, bind est ***incapable*** de travailler dans ce répertoire sans avoir à casser les permissions Unix, c'est de ce fait, que les zones DNS sont enregistrés dans le dossier `/var/cache/bind/`
 
-***
+6) **SPOF sur le DNS secondaire**
 
-### Objectif
+Dans l'infrastructure, le DNS secondaire représente un SPOF non négligeable mais tolérable
 
-- Automatiser l'attribution des adresses IP via DHCP
-- Configurer un service DNS pour la résolution des noms de machines
-- Mettre en place les mises à jour DNS dynamiques
-- Vérifier la cohérence entre les adresses IP attribuées et les enregistrements DNS.
-- Valider le fonctionnement de l'infrastructure à l'aide de tests
-- Reduction des SPOF
-- Utilisation de clé TSIG pour sécuriser l'échange entre les DHCP et les DNS, mais aussi pour la réplication entre DNS
+Par défaut, Bind ne sait pas faire de la haute-disponibilité en load-balance, et même si un moyen alternatif serait envisageable, le risque de créer des incohérence est important ce qui rend impossible que le DNS secondaire puisse servir à créer des enregistrements
+
+Une autre solution serait, d'utiliser un backend comme PostgreSQL ou similaire, mais rajoute de la difficulté dans la configuration, un serevur additionnel
+
+J'ai choisis volontairement, d'accepter ce SPOF qui au pire des cas, va permettre uniquement de faire une résolution de nom sur les enregistrements DNS connu et fournir un service dégradé
 
 ## Architecture & Environnement
 
@@ -88,13 +97,25 @@ Il y'a un détail intéressant sur bind, ou plutôt sur le répertoire `/etc/bin
 
 ![topologie](./illustration/topologie.png)
 
+Les différents composants de l'architecture DHCP et DNS vont travailler dans l'ordre et la logique suivante :
+
+- Les serveurs DHCP vont recevoir des requêtes DHCP et répondre et synchroniser leurs leases via le hook de High-Availability
+- DHCP va envoyer une requête à son API DHCP-DDNS local pour créer un enregistrement DNS, sur le serveur DNS1 ( dns master )
+- DDNS va formuler une requête pour créer  l'ajout de l'enregistrement dans la zone DNS directe et zone reverse. L'utilisation de la clé TSIG va permettre de signer sa requête
+- Bind va créer l'enregistrement dans les zones respective et va pouvoir se synchroniser, avec le DNS voisin qui est en fail-over. Bind va contrôler que la clé TSIG du DDNS est valide, l'utilisation d'une clé TSIG différente va permettre de signer l'échange entre DNS
+- Les deux DNS ont les zones avec des enregistrement et disponible pour des résolutions de nom
+
+![topologie2](./illustration/topologie2.png)
+
 ## Configuration
 
 ### OPNsense
 
-La première étape csonsite, à configurer les port sur OPNSense pour leur assigner un interface et une adresse IP
+La première étape consiste, à configurer les port sur OPNSense pour leur assigner un interface et une adresse IP
 
-Ensuite mettre en place le relais DHCP, pour permettre à mon LAN client de communiquer avec le LAN où, les serveurs DHCP se situent et permettre de transmettre les messages DHCP.
+![opnsense interface](./illustration/opnsense_interface.png)
+
+Ensuite mettre en place le relais DHCP, pour permettre à mon LAN client de communiquer avec le LAN où, les serveurs DHCP se situent et retransmettre les messages DHCP
 
 ![dhcp relay](./illustration/dhcp-relay.png)
 
@@ -102,11 +123,11 @@ Ensuite mettre en place le relais DHCP, pour permettre à mon LAN client de comm
 
 ### DHCP
 
-Kea-dhcp enregistre touts les leases dans un fichier créer lors de l'installation, qui se situe dans : `/var/lib/kea/kea-leases4.csv` et est mis à jour dynamiquement
+Kea-dhcp enregistre touts les leases dans un fichier créer lors de l'installation, qui se situe dans `/var/lib/kea/kea-leases4.csv` et est mis à jour dynamiquement
 
 Les fichiers de configurations du serveur DHCP principale peuvent être copié sur l'autre serveur, pour être sûr d'avoir une configuration identique mais nécessiterons d'être adapté sur certains points
 
-Note : La configuration du DHCP,DDNS et du control-agent se fait en `JSON`
+***Note : La configuration du DHCP,DDNS et du control-agent se fait en `JSON`***
 
 ***
 
