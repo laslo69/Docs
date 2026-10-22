@@ -18,7 +18,7 @@ Comment automatiser l'attribution des adresses IP et la mise à jour des enregis
 
 Comment faire en sorte, de sécuriser l'échange pour s'assurer qu'un serveur DNS non autorisé ne puisse pas se synchroniser avec les DNS existant ?
 
-Si un des serveurs DHCP ou DNS tombe en panne, comment rendre l'infrastructure résiliante ?
+Si un des serveurs DHCP ou DNS tombe en panne, comment rendre l'infrastructure résiliante pour fournir à minima, un service dégradé?
 
 ***
 
@@ -784,23 +784,23 @@ dhcp en ha pour replication fichier lease
 
 dhcp 1 off pour voir si dhcp 2 attribue une ip
 
-![dhcp-sync-1](./illustration/dhcp-sync-1.png)
-
-![dhcp-sync-2](./illustration/dhcp-sync-2.png)
+![dhcp2-alone](./illustration/dhcp2-alone.png)
 
 ### DNS
 
 dns 1 seul ajout dhcp client dans dns
 
-![dns-alone](./illustration/dns-alone.png)
+![dns-alone](./illustration/dns-1alone.png)
 
-![dns-alone-nslookup](./illustration/dns-alone-nslookup.png)
+![dns-alone-nslookup](./illustration/dns-1alone-nslookup.png)
 
 dns 1 + 2 pour check axfr/ixfr
 
-dns2 pour voir si dhcp ajoute bien dans secondary
+![dns-syncro](./illustration/dns-syncro.png)
 
-dns1+2 pour voir si dns2 forward l'update vers le master
+test resolution dns2 alone, pas de synchro
+
+![dns2-nslookup](./illustration/dns2-alone.png)
 
 ## Annexe
 
