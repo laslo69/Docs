@@ -218,9 +218,7 @@ Définission des réseaux, dont l'attribution des IP,option DHCP et pools, est g
                 "subnet": "192.168.10.0/24",
                 "pools":
                 [
-                    {
-                        "pool": "192.168.10.20 - 192.168.10.30"
-                    }
+                    { "pool": "192.168.10.20 - 192.168.10.30" }
                 ],
                 "option-data":
                 [
@@ -247,9 +245,7 @@ Définission des réseaux, dont l'attribution des IP,option DHCP et pools, est g
                 "subnet": "192.168.20.0/24",
                 "pools":
                 [
-                    {
-                        "pool": "192.168.20.10 - 192.168.20.40"
-                    }
+                    { "pool": "192.168.20.10 - 192.168.20.40" }
                 ],
                 "option-data":
                 [
@@ -281,7 +277,7 @@ Définission des réseaux, dont l'attribution des IP,option DHCP et pools, est g
 
 #### Configuration DHCP-DDNS
 
-La configuration du DHCP-DDNS se fait à travers 2 fichiers
+La configuration du DHCP-DDNS se fait par le biais de 2 fichiers :
 
 - kea-dhcp4.conf
 - kea-dhcp-ddns.conf
@@ -290,7 +286,7 @@ La configuration du DHCP-DDNS se fait à travers 2 fichiers
 
 **kea-dhcp4.conf**
 
-Dans le fichier `kea-dhcp4.conf`, la configuration du service kea-ddns va permettre d'indiquer, à kea-dhcp, comment interagir entre le DHCP et le service DDNS, mais aussi comment le NCR ( Name Change Request ) doit compléter le fonctionnement du ddns et la mise à jour des enregistrements DNS
+Dans le fichier `kea-dhcp4.conf`, la configuration du service kea-ddns va permettre d'indiquer, à kea-dhcp, comment interagir entre le DHCP et le service DDNS, mais aussi comment le NCR ( Name Change Request ) doit compléter le fonctionnement du ddns pour la mise à jour des enregistrements DNS
 
 - "enable-updates": true : Active globalement l'envoi des requêtes de mise à jour DNS par le serveur DHCP
 - "server-ip": "127.0.0.1" : adresse IP sur laquelle le démon DDNS écoute
@@ -339,7 +335,9 @@ La déclaration des zones, qu'elles soient directe comme inverse se fait de la m
 
 Dans ce bloc, l'utilisation de la clé TSIG va permettre de signer les requêtes DNS provenant du DDNS en direction du DNS
 
-La clé TSIG peut être générer avec la commande `tsig-keygen -a hmac-sha256 my-tsig-key > /etc/bind/key/ma-cle-ddns.key`
+La clé TSIG peut être générer avec la commande `tsig-keygen -a hmac-sha256 ma-cle-ddns.key > /etc/bind/key/ma-cle-ddns.key`
+
+Cette clé TSIG va être important pour le fonctionnement du DNS, il est nécessaire de la copié dans le dossier `/etc/bind/`
 
 - "tsig-keys":    Déclaration de la clé TSIG
 - "name": "ma-cle-ddns.key"     : Nom de la clé TSIG
@@ -444,7 +442,7 @@ Le bloc réservation, va permettre de créer les réservations pour des clients 
 
 - "hw-address": "bv:24:11:37:b5:a2" : Spécifie l'adresse MAC de l'interface du client
 - "ip-address": "192.168.20.10", : Désigne une adresse IP réservé pour le client avec l'adresse MAC correspondante
-- "user-context": { "comment": "proxmox manager" } : User-context va servire, en commentaire pour simplifier la lecture des réservations
+- "user-context": { "comment": "proxmox manager" } : User-context va servir, en commentaire pour simplifier la lecture des réservations
 
 ```json
 ...
@@ -490,6 +488,8 @@ La configuration du load-balance passe par des "hooks", qui peuvent fonctionner 
 - load-balance
 
 Dans le bloc " high-availability ", il faut spécifié, le mode de fonctionnement, les timers du heartbeat, le nom du serveur local et les pairs membres
+
+***note : Si le fichier est copié sur un autre serveur, bien penser à changer le nom de "this-server-name"***
 
 - "this-server-name": "dhcp-ddns-1" : Décrit le nom du serveur actuel, si le fichier est copié, modifier le nom pour les autres serveurs
 - "mode": "load-balancing" : Défini le mode de high availability
@@ -556,7 +556,7 @@ Dans le fichier `/etc/kea/kea-ctrl-agent.conf`, il y'a 2 blocs à modifier
 - "control-agent"
 - "authentication"
 
-Contrôle agent va servir à configurer comment l'API doit communiquer  et contrôler l'authentification des serveurs DHCP
+Control-agent va servir à configurer comment l'API doit communiquer  et contrôler l'authentification des serveurs DHCP
 
 - "http-host": "0.0.0.0" : Indique l'IP à écouté
 - "http-port": 8000 : Indique le port utilisé ( 8000 par défaut )
@@ -615,6 +615,10 @@ La génération d'une clé TSIG et l'utilisé pour le transfert de zone AXFR ou 
 
 Aussi, l'utilisation des clés DDNS généré sur les serveurs DHCP va permettre d'authentifier et d'autoriser les mises à jours provenant uniquement de ces serveurs, l'utilisation de clé distincte entre DHCP et DNS est recommandé
 
+Il va falloir créer une nouvelle clé TSIG, en complément de celle du DDNS. En utilisant 2 clés différentes, la sécurité des mises à jours DNS et le transfert de zone AXFR/IXFR se voit amélioré
+
+Création de la clé TSIG : `tsig-keygen -a hmac-sha256 ma-cle-tsig.key > /etc/bind/key/ma-cle-tsig.key`, la clé doit être copié dans le dossier du second DNS pour que les clés correspondent
+
 - include : Renseigne les clés DNS
 - zone :    Défini le rôle, emplacement et autorisation du serveur sur la zone
     - type : Peux être soit master ou slave
@@ -662,7 +666,7 @@ La déclaration est très similaire mais nécessite des corrections
 - La déclaration des clés reste inchangé
 - Le type de la zone doit être "slave"
 
-Cependant, il faut ajouter 2 lignes
+Cependant, il faut ajouter 1 lignes
 
 - masters { 192.168.10.5 key "ma-cle-tsig.key"; };
 - allow-update-forwarding { key "ma-cle-tsig.key"; };
@@ -680,22 +684,22 @@ zone "lab.lan"{
     type slave;
     masters { 192.168.10.5 key "ma-cle-tsig.key"; };
     file "/var/cache/bind/db.lab.lan";
-    allow-transfer { key "ma-cle-ddns.key"; } ;
-    allow-update-forwarding { ma-cle-tsig.key"; };
+    allow-transfer { key "ma-cle-tsig.key"; } ;
+    allow-update-forwarding { key "ma-cle-ddns.key"; };
 };
 zone "10.168.192.in-addr.arpa"{
     type slave;
     masters { 192.168.10.5 key "ma-cle-tsig.key"; };
     file "/var/cache/bind/db.lab.lan";
-    allow-transfer { key "ma-cle-ddns.key"; } ;
-    allow-update-forwarding { ma-cle-tsig.key"; };
+    allow-transfer { key "ma-cle-tsig.key"; } ;
+    allow-update-forwarding { "ma-cle-ddns.key"; };
 };
 zone "20.168.192.in-addr.arpa"{
     type slave;
     masters { 192.168.10.5 key "ma-cle-tsig.key"; };
     file "/var/cache/bind/db.lab.lan";
-    allow-transfer { key "ma-cle-ddns.key"; } ;
-    allow-update-forwarding { ma-cle-tsig.key"; };
+    allow-transfer { key "ma-cle-tsig.key"; } ;
+    allow-update-forwarding { key "ma-cle-ddns.key"; };
 };
 ```
 
@@ -706,14 +710,13 @@ La création des zones doit se fare dans le répertoire `/var/cache/bind/`, comm
 **zone directe**
 
 ```bash
-$ORIGIN lab.lan 
-$TTL 86400 
-                @   	IN  	SOA 	dns1.lab.lan.	admin.lab.lan. (
-                                        1          ; serial                     
-                                        21600      ; refresh after 6 hours                     
-                                        3600       ; retry after 1 hour                     
-                                        604800     ; expire after 1 week                     
-                                        86400 )    ; minimum TTL of 1 day  
+$TTL 86400
+lab.lan .       @   	IN  	SOA 	dns1.lab.lan.	admin.lab.lan. (
+                                        1; serial                     
+                                        21600 ; refresh                     
+                                        3600; retry                     
+                                        604800; expire                     
+                                        86400 ); minimum TTL  
                                 NS      dhcp-ddns-1.lab.lan.
                                 NS      dhcp-ddns-2.lab.lan.
 dhcp-ddns-1.lab.lan.    A               192.168.10.5
@@ -723,35 +726,31 @@ dhcp-ddns-2.lab.lan.    A               192.168.10.6
 **zone reverse LAN 10**
 
 ```bash
-$ORIGIN lab.lan 
 $TTL 86400 
-                @   	IN  	SOA 	dns1.lab.lan.	admin.lab.lan. (
+10.168.192.in-addr.arpa. @   	IN  	SOA 	dns1.lab.lan.	admin.lab.lan. (
                                         1          ; serial                     
-                                        21600      ; refresh after 6 hours                     
-                                        3600       ; retry after 1 hour                     
-                                        604800     ; expire after 1 week                     
-                                        86400 )    ; minimum TTL of 1 day  
+                                        21600      ; refresh                    
+                                        3600       ; retry                    
+                                        604800     ; expire                   
+                                        86400 )    ; minimum TTL 
                                 NS      dhcp-ddns-1.lab.lan.
                                 NS      dhcp-ddns-2.lab.lan.
-dhcp-ddns-1.lab.lan.    A               192.168.10.5
-dhcp-ddns-2.lab.lan.    A               192.168.10.6
+5                       IN      PTR     dhcp-ddns-1.lab.lan.
+6                       IN      PTR     dhcp-ddns-2.lab.lan.
 ```
 
 **zone reverse LAN 20**
 
 ```bash
-$ORIGIN lab.lan 
 $TTL 86400 
-                @   	IN  	SOA 	dns1.lab.lan.	admin.lab.lan. (
+20.168.192.in-addr.arpa. @   	IN  	SOA 	dns1.lab.lan.	admin.lab.lan. (
                                         1          ; serial                     
-                                        21600      ; refresh after 6 hours                     
-                                        3600       ; retry after 1 hour                     
-                                        604800     ; expire after 1 week                     
-                                        86400 )    ; minimum TTL of 1 day  
+                                        21600      ; refresh                    
+                                        3600       ; retry                    
+                                        604800     ; expire                   
+                                        86400 )    ; minimum TTL 
                                 NS      dhcp-ddns-1.lab.lan.
                                 NS      dhcp-ddns-2.lab.lan.
-dhcp-ddns-1.lab.lan.    A               192.168.10.5
-dhcp-ddns-2.lab.lan.    A               192.168.10.6
 ```
 
 #### Configuration DNS
@@ -791,37 +790,69 @@ options {
 
 ## Test
 
-serie de test
+Pour finaliser, une sére de test pour contrôler que la configuration soit bonne et fonctionnelle
 
 ### DHCP
 
-dhcp primary seul pour attribution ip
+En premier, je vérifie si le DHCP-1 seul, arrive à attribuer une IP
+
+La commande `cat /var/lib/kea/kea-leases4.csv` me confirme la création de leases dans le fichier, à ce niveau le DHCP-1 est fonctionnel
 
 ![dhcp-alone](./illustration/dhcp-alone.png)
 
-dhcp en ha pour replication fichier lease
+***
+
+Ensuite, je vas vérifier si, quand j'allume le DHCP-2, si les 2 serveurs DHCP communiquent entre eux et vont actualiser les leases
+
+Sur le serveur DHCP-2, la commande `cat /var/lib/kea/kea-leases4.csv` me confirme la synchronisation des deux serveurs DHCP et l'actualisation de leases
 
 ![dhcp-ha](./illustration/dhcp-ha.png)
 
-dhcp 1 off pour voir si dhcp 2 attribue une ip
+***
+
+Dernier test DHCP, je coupe le DHCP-1 pour vérifier que le DHCP-2 soit capable de distribuer une adresse IP
+
+Toujours avec la commande `cat /var/lib/kea/kea-leases4.csv`, il est visible que, le leases du client appris par la synchronisation précédente est présent, mais aussi le lease d'un nouveau client
+
+Arrivé à ce stade, je peut en conclure que, DHCP-1 et DHCP-2 en stand-alone est fonctionnel mais aussi en load-balancing
 
 ![dhcp2-alone](./illustration/dhcp2-alone.png)
 
+*** 
+
 ### DNS
 
-dns 1 seul ajout dhcp client dans dns
+Cette fois, il est question de tester la mise à jour du serveur DNS, pour contrôler si le DHCP crée bien l'enregistrement
+
+Sur cette capture d'écran, il est visible que le lease DHCP est existant mais aussi que, le DHCP à crée l'enregistrement de ce client dans la zone directe mais aussi, dans la zone inverse
 
 ![dns-alone](./illustration/dns-1alone.png)
 
+Pour contrôler la validité de l'information, je vérifie les informations en utilisant `nslookup`
+
+Le serveur retourne des réponses valide autant pour la résolution du nom, mais aussi pour la résolution de l'IP
+
 ![dns-alone-nslookup](./illustration/dns-1alone-nslookup.png)
 
-dns 1 + 2 pour check axfr/ixfr
+***
+
+Le point important de la mise en place d'un DNS en fail-over, consiste à vérifier que le DNS secondaire soit bien mis à jour
+
+J'exécute la même procédure de vérification sur le DNS-2, qui me retourne également des réponses valide
+
+A ce niveau, le DNS principale est valide et la synchronisation des serveurs DNS est valide
 
 ![dns-syncro](./illustration/dns-syncro.png)
 
-test resolution dns2 alone, pas de synchro
+***
+
+Un dernier test, pour confirmer que une fois, le DNS-1 éteint, que le DNS-2 soit toujours en mesure de faire une résolution DNS
+
+Sans surprise, la résolution DNS est fonctionnel
 
 ![dns2-nslookup](./illustration/dns2-alone.png)
+
+***
 
 ## Annexe
 
@@ -996,6 +1027,8 @@ test resolution dns2 alone, pas de synchro
 }
 ```
 
+***
+
 #### Kea-dhcp-ddns
 
 Fichier `/etc/kea-dhcp-ddns.conf`, a copier sur chaque serveur kea-dhcp
@@ -1073,11 +1106,13 @@ Fichier `/etc/kea-dhcp-ddns.conf`, a copier sur chaque serveur kea-dhcp
 }
 ```
 
+***
+
 #### kea-ctrl-agent
 
 Modifier la section "contro-agent" et "authentication" de `/etc/kea/kea-ctrl-agent` et modifier le port http
 
-control-agent
+partie ***control-agent***
 
 ```json
 {
@@ -1090,7 +1125,7 @@ control-agent
 }
 ```
 
-authentication
+partie ***authentication***
 
 ```json
 ...
@@ -1109,17 +1144,19 @@ authentication
 ...
 ```
 
-Créer dans `/etc/kea/` un fichier `kea-api-password` et écrire uniquement le mot de passe
+fichier `kea-api-password`
 
 ```bash
 test
 ```
 
+***
+
 ### DNS
 
 #### named.conf.local
 
-Inclure les cles TSIG et renseigner les zones DNS
+**Zone master**
 
 ```bash
 include "/etc/bind/key/ma-cle-tsig.key";
@@ -1130,30 +1167,61 @@ zone "lab.lan"
     type master;
     file "/var/cache/bind/db.lab.lan";
     allow-update { key "ma-cle-ddns.key"; };
-    allow-transfer { key "ma-cle-tsig.key; };
+    allow-transfer { key "ma-cle-tsig.key; };
     notify yes;
 };
-
 zone "10.168.192.in-addr.arpa"
 {
     type master;
     file "/var/cache/bind/db-reverse10.lab.lan";
     allow-update { key "ma-cle-ddns.key"; };
-    allow-transfer { key "ma-cle-tsig.key; };
+    allow-transfer { key "ma-cle-tsig.key; };
     notify yes;
 };
-
 zone "lab.lan"
 {
     type master;
     file "/var/cache/bind/db-reverse20.lab.lan";
     allow-update { key "ma-cle-ddns.key"; };
-    allow-transfer { key "ma-cle-tsig.key; };
+    allow-transfer { key "ma-cle-tsig.key; };
     notify yes;    
 };
 ```
 
+**Zone slave**
+
+```bash
+include "/etc/bind/key/ma-cle-tsig.key";
+include "/etc/bind/key/ma-cle-ddns.key";
+
+zone "lab.lan"{
+    type slave;
+    masters { 192.168.10.5 key "ma-cle-tsig.key"; };
+    file "/var/cache/bind/db.lab.lan";
+    allow-transfer { key "ma-cle-tsig.key"; } ;
+    allow-update-forwarding { key "ma-cle-ddns.key"; };
+};
+zone "10.168.192.in-addr.arpa"{
+    type slave;
+    masters { 192.168.10.5 key "ma-cle-tsig.key"; };
+    file "/var/cache/bind/db.lab.lan";
+    allow-transfer { key "ma-cle-tsig.key"; } ;
+    allow-update-forwarding { "ma-cle-ddns.key"; };
+};
+zone "20.168.192.in-addr.arpa"{
+    type slave;
+    masters { 192.168.10.5 key "ma-cle-tsig.key"; };
+    file "/var/cache/bind/db.lab.lan";
+    allow-transfer { key "ma-cle-tsig.key"; } ;
+    allow-update-forwarding { key "ma-cle-ddns.key"; };
+};
+```
+
+***
+
 #### named.conf.options
+
+Identique sur les 2 serveurs
 
 ```bash
 acl "lan"{
@@ -1176,13 +1244,15 @@ options {
 };
 ```
 
+***
+
 #### zone directe
 
 ```bash
 $ORIGIN lab.lan 
 $TTL 86400 
                 @   	IN  	SOA 	dns1.lab.lan.	admin.lab.lan. (
-                                        2001062501 ; serial                     
+                                        1          ; serial                     
                                         21600      ; refresh after 6 hours                     
                                         3600       ; retry after 1 hour                     
                                         604800     ; expire after 1 week                     
@@ -1198,33 +1268,29 @@ dhcp-ddns-2.lab.lan.    A               192.168.10.6
 LAN 10
 
 ```bash
-$ORIGIN lab.lan 
 $TTL 86400 
-                @   	IN  	SOA 	dns1.lab.lan.	admin.lab.lan. (
-                                        2001062501 ; serial                     
-                                        21600      ; refresh after 6 hours                     
-                                        3600       ; retry after 1 hour                     
-                                        604800     ; expire after 1 week                     
-                                        86400 )    ; minimum TTL of 1 day  
+10.168.192.in-addr.arpa. @   	IN  	SOA 	dns1.lab.lan.	admin.lab.lan. (
+                                        1          ; serial                     
+                                        21600      ; refresh                    
+                                        3600       ; retry                    
+                                        604800     ; expire                   
+                                        86400 )    ; minimum TTL 
                                 NS      dhcp-ddns-1.lab.lan.
                                 NS      dhcp-ddns-2.lab.lan.
-dhcp-ddns-1.lab.lan.    A               192.168.10.5
-dhcp-ddns-2.lab.lan.    A               192.168.10.6
+5                       IN      PTR     dhcp-ddns-1.lab.lan.
+6                       IN      PTR     dhcp-ddns-2.lab.lan.
 ```
 
 LAN 20
 
 ```bash
-$ORIGIN lab.lan 
 $TTL 86400 
-                @   	IN  	SOA 	dns1.lab.lan.	admin.lab.lan. (
-                                        2001062501 ; serial                     
-                                        21600      ; refresh after 6 hours                     
-                                        3600       ; retry after 1 hour                     
-                                        604800     ; expire after 1 week                     
-                                        86400 )    ; minimum TTL of 1 day  
+20.168.192.in-addr.arpa. @   	IN  	SOA 	dns1.lab.lan.	admin.lab.lan. (
+                                        1          ; serial                     
+                                        21600      ; refresh                    
+                                        3600       ; retry                    
+                                        604800     ; expire                   
+                                        86400 )    ; minimum TTL 
                                 NS      dhcp-ddns-1.lab.lan.
                                 NS      dhcp-ddns-2.lab.lan.
-dhcp-ddns-1.lab.lan.    A               192.168.10.5
-dhcp-ddns-2.lab.lan.    A               192.168.10.6
 ```
