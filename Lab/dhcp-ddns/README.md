@@ -4,9 +4,9 @@
 
 ### Contexte
 
-Dans le cadre de ce projet, j'ai mis en place une infrastructure réseau sous Linux associant un service DHCP à un service DNS dynamique (DDNS).
+Dans le cadre de ce projet, j'ai mis en place une infrastructure réseau sous Linux associant un service DHCP à un service DNS dynamique
 
-L'objectif est d'automatiser l'attribution des adresses IP aux clients et de maintenir à jour les enregistrements DNS correspondants, le tout en sécurisant les échange entre les DHCP et les DNS.
+L'objectif est d'automatiser l'attribution des adresses IP aux clients et de maintenir à jour les enregistrements DNS correspondants, le tout en sécurisant les échange entre les DHCP et les DNS
 
 ***Fichiers de configuration complet en annexe***
 
@@ -16,7 +16,7 @@ L'objectif est d'automatiser l'attribution des adresses IP aux clients et de mai
 
 Comment automatiser l'attribution des adresses IP et la mise à jour des enregistrements DNS afin de simplifier l'administration d'un réseau ?
 
-Comment faire en sorte, de sécuriser l'échange pour s'assurer qu'un serveur DNS non autorisé ne puisse pas se synchroniser avec les DNS existant ?
+Comment faire en sorte, de sécuriser l'échange pour s'assurer qu'un serveur DNS non autorisé ne puisse pas se synchroniser avec les DNS existant et copier les enregistrements?
 
 Si un des serveurs DHCP ou DNS tombe en panne, comment rendre l'infrastructure résiliante pour fournir à minima, un service dégradé?
 
@@ -35,11 +35,11 @@ Si un des serveurs DHCP ou DNS tombe en panne, comment rendre l'infrastructure r
 
 ### Difficulte & Observation
 
-Avant de commencer, il y'a plusieurs points intéressants et important, qui m'ont fait perdre du temps bêtement, que je souhaite aborder
+Avant de commencer, il y'a plusieurs points intéressants et important, qui m'ont fait perdre du temps, que je souhaite aborder
 
 1) **Documentation kea & bind**
 
-Avant d'entamer le lab, il à fallu prendre connaissance des documentations, pour repérer les options utiles et me les notés
+Avant d'entamer le lab, il à fallu prendre connaissance des documentations, pour repérer les options utiles
 
 Je ne sais que dire.... une documentation massive et brouillon pour kea-dhcp ce qui rend la compréhension très difficile
 
@@ -47,17 +47,22 @@ A l'inverse pour bind, la documentation est relativement pauvre ce qui peut indu
 
 2) **La configuration JSON**
 
-Sur l'ancien DHCP du consortium ISC, la syntaxe était en bash. Syntaxe simple à lire, écrire, mais depuis que isc-dhcp est obsolète et remplacé par kea-dhcp, la syntaxe est passé en JSON, qui est une syntaxe que j'ai trouvé plus "lourde" et plus difficile à lire
+Sur l'ancien DHCP du consortium ISC, la syntaxe était en bash
+
+Syntaxe simple à lire, écrire, mais depuis que isc-dhcp est devenu obsolète et remplacé par kea-dhcp, la syntaxe est passé en JSON, qui est une syntaxe que j'ai trouvé plus "lourde" et plus difficile à lire
 
 3) **Kea-dhcp & apparmor**
 
-Un autre détail important de kea-dhcp est, lors du boot de la machine ( en l'occurence, une VM pour ma part ), le service était continuellement en erreur, même si la syntaxe est bonne.
+Un autre détail important de kea-dhcp est, lors du boot de la machine, le service était continuellement en erreur, même si la syntaxe est bonne.
 
-Le coupable est, après de longue recherche et test, AppArmor. Apparmor bloque le service kea-dhcp et nécessite de créer, que ce soit temporaire ou permanent, une autorisation pour que le service soit fonctionnel
+Le coupable est, après de longue recherche et test, `AppArmor`
 
-En solution temporaire de fortune mais fonctionnel, j'ai ajouté une entrée dans cron pour que au boot de la machine, la commande soit automatiquement validé et le service fonctionnem
+Apparmor bloque le service kea-dhcp et nécessite de créer, que ce soit temporaire ou permanent, une autorisation pour que le service soit fonctionnel
+
+En solution temporaire de fortune mais fonctionnel, j'ai ajouté une entrée dans cron pour que au boot de la machine, la commande soit automatiquement validé et le service fonctionnel
 
 ```bash
+crontab -e
 @reboot    apparmor_parser -R /etc/apparmor.d/usr.sbin.kea-dhcp4
 ```
 
@@ -69,15 +74,17 @@ Alternative un peu moins sûre mais tolérable, est d'inscrire en solide la clé
 
 5) **Répertoire `/etc/bind/`**
 
-Il y'a un détail intéressant sur bind, ou plutôt sur le répertoire `/etc/bind`. Par défaut, bind est ***incapable*** de travailler dans ce répertoire sans avoir à casser les permissions Unix, c'est de ce fait, que les zones DNS sont enregistrés dans le dossier `/var/cache/bind/`
+Il y'a un détail intéressant sur bind, ou plutôt sur le répertoire `/etc/bind`
+
+Par défaut, bind est ***incapable*** de travailler dans ce répertoire sans avoir à casser les permissions Unix, c'est de ce fait, que les zones DNS sont enregistrés dans le dossier `/var/cache/bind/`
 
 6) **SPOF sur le DNS secondaire**
 
 Dans l'infrastructure, le DNS secondaire représente un SPOF non négligeable mais tolérable
 
-Par défaut, Bind ne sait pas faire de la haute-disponibilité en load-balance, et même si un moyen alternatif serait envisageable, le risque de créer des incohérence est important ce qui rend impossible que le DNS secondaire puisse servir à créer des enregistrements
+Par défaut, Bind ne sait pas faire de la haute-disponibilité en load-balance, et même si un moyen alternatif serait envisageable, le risque de créer des incohérence est important ce qui rend complexe que le DNS secondaire puisse servir à créer des enregistrements
 
-Une autre solution serait, d'utiliser un backend comme PostgreSQL ou similaire, mais rajoute de la difficulté dans la configuration, un serevur additionnel
+Une autre solution serait, d'utiliser un backend comme PostgreSQL ou similaire, mais rajoute de la difficulté dans la configuration et un serveur additionnel
 
 J'ai choisis volontairement, d'accepter ce SPOF qui au pire des cas, va permettre uniquement de faire une résolution de nom sur les enregistrements DNS connu et fournir un service dégradé
 
@@ -91,7 +98,7 @@ J'ai choisis volontairement, d'accepter ce SPOF qui au pire des cas, va permettr
     - kea-ctrl-agent
 - Service DNS : Bind9
 - Réseau :
-    - LAN local : 192.168.0.0/24
+    - LAN FAI : 192.168.0.0/24
     - LAN 10    : 192.168.10.0/24
     - LAN 20    : 192.168.20.0/24
 
@@ -99,8 +106,8 @@ J'ai choisis volontairement, d'accepter ce SPOF qui au pire des cas, va permettr
 
 Les différents composants de l'architecture DHCP et DNS vont travailler dans l'ordre et la logique suivante :
 
-- Les serveurs DHCP vont recevoir des requêtes DHCP et répondre et synchroniser leurs leases via le hook de High-Availability
-- DHCP va envoyer une requête à son API DHCP-DDNS local pour créer un enregistrement DNS, sur le serveur DNS1 ( dns master )
+- Les serveurs DHCP vont recevoir des requêtes DHCP, répondre et synchroniser leurs leases via le hook de High-Availability
+- DHCP va envoyer une requête à son API DHCP-DDNS local pour créer un enregistrement DNS, sur le serveur DNS-1 ( DNS qui à le rôle de master )
 - DDNS va formuler une requête pour créer  l'ajout de l'enregistrement dans la zone DNS directe et zone reverse. L'utilisation de la clé TSIG va permettre de signer sa requête
 - Bind va créer l'enregistrement dans les zones respective et va pouvoir se synchroniser, avec le DNS voisin qui est en fail-over. Bind va contrôler que la clé TSIG du DDNS est valide, l'utilisation d'une clé TSIG différente va permettre de signer l'échange entre DNS
 - Les deux DNS ont les zones avec des enregistrement et disponible pour des résolutions de nom
@@ -111,11 +118,13 @@ Les différents composants de l'architecture DHCP et DNS vont travailler dans l'
 
 ### OPNsense
 
-La première étape consiste, à configurer les port sur OPNSense pour leur assigner un interface et une adresse IP
+La première étape consiste, à configurer les port sur OPNSense pour leur assigner un interface et une adresse IP pour mettre en place mes différents LAN
 
 ![opnsense interface](./illustration/opnsense_interface.png)
 
 Ensuite mettre en place le relais DHCP, pour permettre à mon LAN client de communiquer avec le LAN où, les serveurs DHCP se situent et retransmettre les messages DHCP
+
+Le relais DHCP va ajouter un champ dans la trame DHCP ( option 82 )
 
 ![dhcp relay](./illustration/dhcp-relay.png)
 
@@ -126,8 +135,6 @@ Ensuite mettre en place le relais DHCP, pour permettre à mon LAN client de comm
 Kea-dhcp enregistre touts les leases dans un fichier créer lors de l'installation, qui se situe dans `/var/lib/kea/kea-leases4.csv` et est mis à jour dynamiquement
 
 Les fichiers de configurations du serveur DHCP principale peuvent être copié sur l'autre serveur, pour être sûr d'avoir une configuration identique mais nécessiterons d'être adapté sur certains points
-
-***Note : La configuration du DHCP,DDNS et du control-agent se fait en `JSON`***
 
 ***
 
@@ -146,7 +153,7 @@ La configuration du  bloc DHCP se compose de plusieurs sections:
 
 Eplications sur la configuration de chaque bloc avec un exemple
 
-1) **Timers ( exprimé en secondes )**
+1) **Timers ( exprimé en seconde )**
 
 La définissions des timers, va permettre de donner les directives de, quand demander une mise à jour du lease, sa durée de vie et dans le cas échéant, supprimer le lease obsolète du fichier de leases
 
@@ -182,7 +189,7 @@ Configure le comportement de kea-dhcp4, sur comment les leases doivent être sto
 
 4) **Gestion sous-réseaux**
 
-Définission des réseaux, dont l'attribution des IP,option DHCP et pools, est géré par kea-dhcp
+Définission des réseaux, dont l'attribution des IP,option DHCP, pools est géré par kea-dhcp
 
 - "id": 1 : ID du réseau à déclarer, à incrémenter pour chaque nouveau réseau
 - "subnet": "192.168.10.0/24" : Définir le réseau au format CIDR
@@ -196,7 +203,7 @@ Définission des réseaux, dont l'attribution des IP,option DHCP et pools, est g
 {
     "Dhcp4":
     {
-        "valide-lifetime": 2000,
+        "valid-lifetime": 2000,
         "renew-timer": 500,
         "rebind-timer": 1000,
         "interfaces-config":
@@ -344,7 +351,7 @@ Cette clé TSIG va être important pour le fonctionnement du DNS, il est nécess
 - "algorithm": "hmac-sha256"    : Algorithme utilisé par la clé
 - "secret": "HGj/s1alczSQMz8GAmVG/nwIsd0JiDxTX2whyXpk+MA="  : Secret de la clé
 
-"forward-ddns" et "reverse-ddns" se déclare de la même façon
+"forward-ddns" et "reverse-ddns" se déclare exactement pareil
 
 - "forward-ddns":
 - "ddns-domains":
@@ -482,7 +489,7 @@ Le bloc réservation, va permettre de créer les réservations pour des clients 
 
 #### Configuration Load-balance
 
-La configuration du load-balance passe par des "hooks", qui peuvent fonctionner en 2 modes différent, qui est géré nativement par kea-dhcp, ce qui évite de passer par des outils intermédiaire
+La configuration du load-balance passe par un "hook", qui peut fonctionner en 2 modes différent, géré nativement par kea-dhcp, ce qui évite de passer par des outils intermédiaire
 
 - fail-over
 - load-balance
@@ -501,7 +508,7 @@ Dans le bloc " high-availability ", il faut spécifié, le mode de fonctionnemen
 - "role": "primary" : Spécifie si le serveur est le primary ou secondary
 - "auto-failover": true : Défini si le fail-over automatique doit être utilisé
 - "user": "kea-api" : utilisateur défini dans `/etc/kea/kea-ctrl-agent`
-- "password": "test" : mot de passe défini dans `/etc/kea/kea-api-password` et du chemin défini dans `/etc/kea/kea-ctrl-agent`
+- "password": "test" : mot de passe défini dans `/etc/kea/kea-api-password` et le chemin du fichier défini dans `/etc/kea/kea-ctrl-agent`
 
 ```json
 ...
@@ -593,7 +600,7 @@ Dans le bloc client, il est attendu un fichier contenant le mot de passe et son 
 ...
 ```
 
-Il faut bien penser à créer le fichier `/etc/kea/kea-api-password` dans `/etc/kea/` et écrire uniquement le mot de passe à l'intérieur
+Il faut bien penser à créer un fichier `/etc/kea/kea-api-password` et écrire uniquement le mot de passe à l'intérieur
 
 ```bash
 echo "test" > /etc/kea/kea-api-password
@@ -605,11 +612,11 @@ echo "test" > /etc/kea/kea-api-password
 
 #### Déclaration zone - Master
 
-Le fichier peut être copié sur le DNS secondaire mais nécessite des légères modifications
+Le fichier peut être copié sur le DNS secondaire mais nécessitera de légères modifications
 
 Le fichier `named.conf.local` va servire à déclarer les zones DNS dont le serveur fait autorité, chaque zone doit être renseigné.
 
-Dans le cas d'une haute disponibilité de bind, la designation de rôle est nécessaire pour désigner qui à quel rôle dans la relation master/slave
+Dans le cas d'une haute disponibilité de bind, la designation de rôle est nécessaire pour désigner quel serveur dans la relation est master ou slave
 
 La génération d'une clé TSIG et l'utilisé pour le transfert de zone AXFR ou IXFR est recommandé pour pouvoir, par le biais d'une signature, de contrôler les serveurs DNS qui ont l'autorisation d'envoyer ou recevoir des mises à jours
 
@@ -636,7 +643,7 @@ zone "lab.lan"
     type master;
     file "/var/cache/bind/db.lab.lan";
     allow-update { key "ma-cle-ddns.key"; };
-    allow-transfer { key "ma-cle-tsig.key; };
+    allow-transfer { key "ma-cle-tsig.key"; };
     notify yes;
 };
 zone "10.168.192.in-addr.arpa"
@@ -644,18 +651,20 @@ zone "10.168.192.in-addr.arpa"
     type master;
     file "/var/cache/bind/db-reverse10.lab.lan";
     allow-update { key "ma-cle-ddns.key"; };
-    allow-transfer { key "ma-cle-tsig.key; };
+    allow-transfer { key "ma-cle-tsig.key"; };
     notify yes;
 };
-zone "lab.lan"
+zone "20.168.192.in-addr.arpa"
 {
     type master;
     file "/var/cache/bind/db-reverse20.lab.lan";
     allow-update { key "ma-cle-ddns.key"; };
-    allow-transfer { key "ma-cle-tsig.key; };
+    allow-transfer { key "ma-cle-tsig.key"; };
     notify yes;    
 };
 ```
+
+***
 
 #### Déclaration zone - Slave
 
@@ -669,39 +678,35 @@ La déclaration est très similaire mais nécessite des corrections
 Cependant, il faut ajouter 1 lignes
 
 - masters { 192.168.10.5 key "ma-cle-tsig.key"; };
-- allow-update-forwarding { key "ma-cle-tsig.key"; };
 
 Pour expliquer l'utilité de ces lignes et l'importance
 
 - masters : Bind ne sait pas faire du load-balancing, mais uniquement du fail-over. En désignant le serveur "master", le serveur sait à quelle addresse IP demander des mises à jours DNS.
-- allow-update-forwarding : Imaginons que le DNS master tombe, mais que le serveur secondaire enregistre les nouvelles requêtes, quand le "master" reviens en état fonctionnel, il y'aura une incohérence dans les enregistrements. Cette options sert à signalé au "master", qu'il à un numéro de série supérieur et va donc lui transmettre les enregistrements pour le mettre à jour
 
 ```bash
 include "/etc/bind/key/ma-cle-tsig.key";
-include "/etc/bind/key/ma-cle-ddns.key";
 
 zone "lab.lan"{
     type slave;
     masters { 192.168.10.5 key "ma-cle-tsig.key"; };
     file "/var/cache/bind/db.lab.lan";
     allow-transfer { key "ma-cle-tsig.key"; } ;
-    allow-update-forwarding { key "ma-cle-ddns.key"; };
 };
 zone "10.168.192.in-addr.arpa"{
     type slave;
     masters { 192.168.10.5 key "ma-cle-tsig.key"; };
     file "/var/cache/bind/db-reverse10.lab.lan";
     allow-transfer { key "ma-cle-tsig.key"; } ;
-    allow-update-forwarding { "ma-cle-ddns.key"; };
 };
 zone "20.168.192.in-addr.arpa"{
     type slave;
     masters { 192.168.10.5 key "ma-cle-tsig.key"; };
     file "/var/cache/bind/db-reverse20.lab.lan";
     allow-transfer { key "ma-cle-tsig.key"; } ;
-    allow-update-forwarding { key "ma-cle-ddns.key"; };
 };
 ```
+
+***
 
 #### Création zone DNS
 
@@ -723,6 +728,8 @@ dhcp-ddns-1.lab.lan.    A               192.168.10.5
 dhcp-ddns-2.lab.lan.    A               192.168.10.6
 ```
 
+***
+
 **zone reverse LAN 10**
 
 ```bash
@@ -739,6 +746,8 @@ $TTL 86400
 6                       IN      PTR     dhcp-ddns-2.lab.lan.
 ```
 
+***
+
 **zone reverse LAN 20**
 
 ```bash
@@ -753,9 +762,13 @@ $TTL 86400
                                 NS      dhcp-ddns-2.lab.lan.
 ```
 
+***
+
 #### Configuration DNS
 
 Le fichier `named.conf.options` va permettre de définir des règles de fonctionnement du DNS et peut être copié sur chaque serveur DNS
+
+***Note : Le fichier peut être copier sur le DNS secondaire***
 
 Ces règles peuvent être du filtrage, comment rediriger une requête si elle est destiné à un réseau extérieur du domaine local, définir les interfaces d'écoute
 
@@ -788,9 +801,11 @@ options {
 };
 ```
 
+***
+
 ## Test
 
-Pour finaliser, une sére de test pour contrôler que la configuration soit bonne et fonctionnelle
+Pour finaliser, une série de test pour contrôler que la configuration soit bonne et fonctionnelle
 
 ### DHCP
 
@@ -822,11 +837,13 @@ Arrivé à ce stade, je peut en conclure que, DHCP-1 et DHCP-2 en stand-alone es
 
 ### DNS
 
-Cette fois, il est question de tester la mise à jour du serveur DNS, pour contrôler si le DHCP crée bien l'enregistrement
+Cette fois, il est question de tester la mise à jour dynamique du serveur DNS master, pour contrôler si le DHCP crée bien l'enregistrement
 
-Sur cette capture d'écran, il est visible que le lease DHCP est existant mais aussi que, le DHCP à crée l'enregistrement de ce client dans la zone directe mais aussi, dans la zone inverse
+Sur cette capture d'écran, il est visible que le lease DHCP est existant mais aussi que, le DHCP à crée l'enregistrement DNS de ce client dans la zone directe mais aussi, dans la zone inverse
 
 ![dns-alone](./illustration/dns-1alone.png)
+
+***
 
 Pour contrôler la validité de l'information, je vérifie les informations en utilisant `nslookup`
 
@@ -848,7 +865,7 @@ A ce niveau, le DNS principale est valide et la synchronisation des serveurs DNS
 
 Un dernier test, pour confirmer que une fois, le DNS-1 éteint, que le DNS-2 soit toujours en mesure de faire une résolution DNS
 
-Sans surprise, la résolution DNS est fonctionnel
+Sans surprise, la résolution DNS est fonctionnel. Cependant il faut bien retenir que, sans une actualisation régulière des enregistrements DNS, un enregistrement peut être supprimer si sa durée de validité est dépassé
 
 ![dns2-nslookup](./illustration/dns2-alone.png)
 
@@ -1144,6 +1161,8 @@ partie ***authentication***
 ...
 ```
 
+***
+
 fichier `kea-api-password`
 
 ```bash
@@ -1156,7 +1175,7 @@ test
 
 #### named.conf.local
 
-**Zone master**
+**DNS master**
 
 ```bash
 include "/etc/bind/key/ma-cle-tsig.key";
@@ -1178,7 +1197,7 @@ zone "10.168.192.in-addr.arpa"
     allow-transfer { key "ma-cle-tsig.key"; };
     notify yes;
 };
-zone "lab.lan"
+zone "20.168.192.in-addr.arpa"
 {
     type master;
     file "/var/cache/bind/db-reverse20.lab.lan";
@@ -1188,7 +1207,9 @@ zone "lab.lan"
 };
 ```
 
-**Zone slave**
+***
+
+**DNS slave**
 
 ```bash
 include "/etc/bind/key/ma-cle-tsig.key";
@@ -1206,7 +1227,7 @@ zone "10.168.192.in-addr.arpa"{
     masters { 192.168.10.5 key "ma-cle-tsig.key"; };
     file "/var/cache/bind/db.lab.lan";
     allow-transfer { key "ma-cle-tsig.key"; } ;
-    allow-update-forwarding { "ma-cle-ddns.key"; };
+    allow-update-forwarding { key "ma-cle-ddns.key"; };
 };
 zone "20.168.192.in-addr.arpa"{
     type slave;
@@ -1221,7 +1242,7 @@ zone "20.168.192.in-addr.arpa"{
 
 #### named.conf.options
 
-Identique sur les 2 serveurs
+**Identique sur les 2 serveurs**
 
 ```bash
 acl "lan"{
@@ -1262,6 +1283,8 @@ dhcp-ddns-1.lab.lan.    A               192.168.10.5
 dhcp-ddns-2.lab.lan.    A               192.168.10.6
 ```
 
+***
+
 #### zone reverse
 
 LAN 10
@@ -1279,6 +1302,8 @@ $TTL 86400
 5                       IN      PTR     dhcp-ddns-1.lab.lan.
 6                       IN      PTR     dhcp-ddns-2.lab.lan.
 ```
+
+***
 
 LAN 20
 
