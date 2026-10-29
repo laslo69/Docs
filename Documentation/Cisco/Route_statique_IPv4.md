@@ -8,14 +8,30 @@ Une route statique peut être de différent type :
 - Network
 - Floating
 
+## Topologie
+
+|Routeur|IPv4|
+|:-:|:-:|
+|R1|192.168.1.1|
+|R1|192.168.2.1|
+|R1|192.168.3.1|
+|R1|10.0.0.100|
+|R2|192.168.3.2|
+|R3|192.168.1.2|
+|R3|192.168.4.2|
+|R4|192.168.2.2|
+|R4|192.168.4.1|
+
+![topologie](./illustration/Routage_statique/topologie.png)
+
 ## Default
 
-Une route par défaut ( noté 0.0.0.0/0) est utilisée lorsque aucune route plus spécifique ne correspond à la destination du paquet. Elle est souvent appelée "gateway of last resort" (passerelle de dernier recours)
+Une route par défaut ( notée 0.0.0.0/0) est utilisée lorsque aucune route plus spécifique ne correspond à la destination du paquet. Elle est souvent appelée "gateway of last resort" (passerelle de dernier recours)
 
-Elle permet, dans le cas ou un routeur n'est pas en mesure de, forward un paquet vers l'IP demandé, de le transférer vers une destination qui va servir à drop tous les paquets inconnus
+La route par défaut envoie les paquets vers une passerelle (généralement un FAI ou un routeur amont) qui, elle, sait les router, dans le cas ou aucune route ne peut acheminé le paquet et en l'absence d'une default gateway, le paquet sera drop
 
 ```bash
-R1(config)#ip route 0.0.0.0 0.0.0.0 192.168.0.1
+R4(config)#ip route 0.0.0.0 0.0.0.0 192.168.2.1
 ```
 
 ## Network
@@ -25,8 +41,8 @@ Une Network Route, est une route statique configuré pour atteindre un réseau d
 La configuration de la route doit se faire sur chaque routeur pour pouvoir, dans un premier temps émettre, mais aussi recevoir la réponse
 
 ```bash
-R1(config)#ip route 192.168.2.0 255.255.255.0 192.168.3.2
-R2(config)#ip route 192.168.1.0 255.255.255.0 192.168.3.1
+R3(config)#ip route 192.168.2.0 255.255.255.0 192.168.1.1
+R3(config)#ip route 192.168.3.0 255.255.255.0 192.168.1.1
 ```
 
 ## Floating
@@ -36,10 +52,8 @@ Une route flottante est une route de secours avec une distance administrative pl
 Une distance administrative doit être saisie manuellement à la fin de la route flottante. Il peut être intéressant de mettre une route statique avec une distance administrative élevé, dans le cas ou un protocole de routage dynamique crée une route similaire, la route statique flottante peut prendre le relais en cas de panne du processus
 
 ```bash
-R1(config)#no ip route 192.168.2.0 255.255.255.0 192.168.3.2
-R1(config)#ip route 192.168.2.0 255.255.255.0 192.168.3.2 130
-R2(config)#no ip route 192.168.1.0 255.255.255.0 192.168.3.1
-R2(config)#ip route 192.168.1.0 255.255.255.0 192.168.3.1 130
+R4(config)ip route 192.168.1.0 255.255.255.0 192.168.4.2
+R4(config)ip route 192.168.1.0 255.255.255.0 192.168.2.1 100
+R4(config)ip route 192.168.3.0 255.255.255.0 192.168.2.1
+R4(config)ip route 192.168.3.0 255.255.255.0 192.168.4.2 100
 ```
-
-## Configuration Cisco

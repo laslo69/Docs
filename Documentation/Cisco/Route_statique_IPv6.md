@@ -14,6 +14,22 @@ Pour utiliser le routage IPv6 avec Cisco, il sera nécessaire d'activer le routa
 ipv6 unicast-routing
 ```
 
+## Topologie
+
+|Routeur|Link-local|Unique local|Global unicast|
+|:-:|:-:|
+|R1|fe80::1|fd:0001::1|2001:0db8:acad:0001::1|
+|R1|fe80::2|fd:0002::1|2001:0db8:acad:0002::2|
+|R1|fe80::3|fd:0003::1|2001:0db8:acad:0003::1|
+|R1|fe80::4|fd:0010::1|2001:0db8:acad:0010::1|
+|R2|fe80::100|fd:0003::2|2001:0db8:acad:0003::2|
+|R3|fe80::100|fd:0001::2|2001:0db8:acad:0001::2|
+|R3|fe80::1|fd:0004::2|2001:0db8:acad:0004::2|
+|R4|fe80::100|fd:0002::2|2001:0db8:acad:0002::2|
+|R4|fe80::2|fd:0004::1|2001:0db8:acad:004::1|
+
+![topologie](./illustration/Routage_statique/topologie.png)
+
 ## Default
 
 Une route par défaut ( noté 0.0.0.0/0) est utilisée lorsque aucune route plus spécifique ne correspond à la destination du paquet. Elle est souvent appelée "gateway of last resort" (passerelle de dernier recours)
