@@ -14,15 +14,10 @@ Cisco IOS sélectionne généralement la route correspondant au préfixe le plus
 
 |Routeur|IPv4|
 |:-:|:-:|
-|R1|192.168.1.1|
-|R1|192.168.2.1|
-|R1|192.168.3.1|
-|R1|10.0.0.100|
+|R1|192.168.1.1 - 192.168.2.1 - 192.168.3.1 - 10.0.0.100|
 |R2|192.168.3.2|
-|R3|192.168.1.2|
-|R3|192.168.4.2|
-|R4|192.168.2.2|
-|R4|192.168.4.1|
+|R3|192.168.1.2 - 192.168.4.2|
+|R4|192.168.2.2 - 192.168.4.1|
 
 ![topologie](./illustration/Routage_statique/topologie.png)
 
