@@ -8,7 +8,7 @@ Une route statique peut être de différent type :
 - Network
 - Floating
 
-Cisco IOS sélectionne généralement la route correspondant au préfixe le plus spécifique (longest prefix match)
+Note : Exemple avec commande Cisco IOS
 
 ## Topologie
 
@@ -39,7 +39,7 @@ R4(config)#ip route 0.0.0.0 0.0.0.0 192.168.2.1
 
 ### Network route
 
-Une route " Network Route " est une route statique permettant de définir explicitement le chemin à emprunter pour atteindre un réseau distant, en indiquant son préfixe et le prochain saut (Next Hop)
+Une " network route " est une route vers un réseau spécifique est une route statique permettant de définir explicitement le chemin à emprunter pour atteindre un réseau distant, en indiquant son préfixe et le prochain saut (Next Hop)
 
 La configuration de la route doit se faire sur chaque routeur pour pouvoir, dans un premier temps émettre, mais aussi recevoir la réponse
 
@@ -57,6 +57,8 @@ Une route flottante est une route de secours avec une distance administrative pl
 Une distance administrative doit être saisie manuellement à la fin de la route flottante. Il peut être intéressant de mettre une route statique avec une distance administrative élevé, dans le cas ou un protocole de routage dynamique crée une route similaire, la route statique flottante peut prendre le relais en cas de panne du processus
 
 L'ajout d'une valeur après la déclaration d'une route permet, de déclarer la route flottante en spécifiant une valeur administrative
+
+Une route flottante n'est installée dans la table de routage que lorsque la route concurrente ayant une distance administrative inférieure n'est plus disponible
 
 ```bash
 R4(config)#ip route 192.168.1.0 255.255.255.0 192.168.4.2

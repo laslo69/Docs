@@ -55,14 +55,11 @@ ip route 0.0.0.0 0.0.0.0 192.168.4.2 100
 ```
 ***
 
-## Visualiser table routage
+## Visualisation de la table de routage
 
 Quelques commandes utile pour visualiser le routage statique
 
-show ip route : affiche l'ensemble de la table de routage
-
-Note ! : Tant que la route utilisé par défaut est valide et fonctionnelle, la route flottante n'apparait pas dans la table de routage
-
+show ip route : affiche la route retenue pour atteindre une destination donnée
 ```bash
 R1#sh ip route 
 Codes: C - connected, S - static, R - RIP, M - mobile, B - BGP
@@ -75,8 +72,7 @@ Codes: C - connected, S - static, R - RIP, M - mobile, B - BGP
 
 Gateway of last resort is 10.0.0.1 to network 0.0.0.0
 
-S    192.168.4.0/24 [1/0] via 192.168.2.2
-                    [1/0] via 192.168.1.2
+S    192.168.4.0/24 [1/0] via 192.168.1.2
      10.0.0.0/16 is subnetted, 1 subnets
 C       10.0.0.0 is directly connected, FastEthernet2/10
 C    192.168.1.0/24 is directly connected, FastEthernet0/0
@@ -106,7 +102,7 @@ Routing entry for 192.168.3.0/24
       Route metric is 0, traffic share count is 1
 ```
 
-## Test connection
+## Test connectivité
 
 Contrôle avec ping pour tester la connection
 

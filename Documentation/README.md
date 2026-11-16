@@ -2,7 +2,7 @@
 
 ## Network
 
-Documentation sur les concepts des protocoles, la configuration pour chaque constructeur est classifié dans un document séparé
+Documentation sur les concepts des protocoles, Les configurations spécifiques aux constructeurs sont présentées dans leurs sections respectives
 
 ### Routage
 
