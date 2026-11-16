@@ -21,6 +21,8 @@ Cisco IOS sélectionne généralement la route correspondant au préfixe le plus
 
 ![topologie](./illustration/Routage_statique/topologie.png)
 
+***
+
 ## Type Routage statique
 
 ### Default route
@@ -33,6 +35,8 @@ La route par défaut envoie les paquets vers une passerelle (généralement un F
 R4(config)#ip route 0.0.0.0 0.0.0.0 192.168.2.1
 ```
 
+***
+
 ### Network route
 
 Une route " Network Route " est une route statique permettant de définir explicitement le chemin à emprunter pour atteindre un réseau distant, en indiquant son préfixe et le prochain saut (Next Hop)
@@ -43,6 +47,8 @@ La configuration de la route doit se faire sur chaque routeur pour pouvoir, dans
 R3(config)#ip route 192.168.2.0 255.255.255.0 192.168.1.1
 R3(config)#ip route 192.168.3.0 255.255.255.0 192.168.1.1
 ```
+
+***
 
 ### Floating
 
@@ -58,5 +64,7 @@ R4(config)#ip route 192.168.1.0 255.255.255.0 192.168.2.1 100
 R4(config)#ip route 192.168.3.0 255.255.255.0 192.168.2.1
 R4(config)#ip route 192.168.3.0 255.255.255.0 192.168.4.2 100
 ```
+
+***
 
 ## Visualiser table routage
