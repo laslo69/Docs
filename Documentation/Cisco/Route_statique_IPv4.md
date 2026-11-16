@@ -29,7 +29,7 @@ Cisco IOS sélectionne généralement la route correspondant au préfixe le plus
 
 Une route par défaut ( notée 0.0.0.0/0) est utilisée lorsque aucune route plus spécifique ne correspond à la destination du paquet. Elle est souvent appelée "gateway of last resort" (passerelle de dernier recours)
 
-La route par défaut envoie les paquets vers une passerelle (généralement un FAI ou un routeur amont) qui, elle, sait les router, dans le cas ou aucune route ne peut acheminé le paquet et en l'absence d'une default gateway, le paquet sera drop
+La route par défaut envoie les paquets vers une passerelle ( généralement un routeur FAI ou un routeur amont ) qui, elle, sait les router, dans le cas ou aucune route ne peut acheminé le paquet et en l'absence d'une default gateway, le paquet sera drop
 
 ```bash
 R4(config)#ip route 0.0.0.0 0.0.0.0 192.168.2.1
