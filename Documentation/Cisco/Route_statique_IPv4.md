@@ -13,13 +13,53 @@
 
 ***
 
+## Configuration complète
+
+R1
+
+```bash
+ip route 192.168.4.0 255.255.255.0 192.168.1.2
+ip route 192.168.4.0 255.255.255.0 192.168.2.2 100
+ip route 0.0.0.0 0.0.0.0 fastethernet 2/10
+```
+
+R2
+
+```bash
+ip route 192.168.1.0 255.255.255.0 192.168.3.1
+ip route 192.168.2.0 255.255.255.0 192.168.3.1
+ip route 192.168.4.0 255.255.255.0 192.168.3.1
+ip route 0.0.0.0 0.0.0.0 192.168.3.1
+```
+
+R3
+
+```bash
+ip route 192.168.3.0 255.255.255.0 192.168.1.1
+ip route 192.168.3.0 255.255.255.0 192.168.4.1 100
+ip route 192.168.2.0 255.255.255.0 192.168.1.1
+ip route 192.168.2.0 255.255.255.0 192.168.4.1 100
+ip route 0.0.0.0 0.0.0.0 192.168.1.1
+ip route 0.0.0.0 0.0.0.0 192.168.4.1 100
+```
+
+R4
+
+```bash
+ip route 192.168.1.0 255.255.255.0 192.168.4.2
+ip route 192.168.1.0 255.255.255.0 192.168.2.1 100
+ip route 192.168.3.0 255.255.255.0 192.168.2.1
+ip route 192.168.3.0 255.255.255.0 192.168.4.2 100
+ip route 0.0.0.0 0.0.0.0 192.168.2.1
+ip route 0.0.0.0 0.0.0.0 192.168.4.2 100
+```
+***
+
 ## Visualiser table routage
 
 Quelques commandes utile pour visualiser le routage statique
 
-- show ip route : affiche l'ensemble de la table de routage
-- show ip route static : affiche seulement les entrées statique
-- show ip route 192.168.2.1 : affiche le chemin emprunté pour atteindre la destination
+show ip route : affiche l'ensemble de la table de routage
 
 ```bash
 R1#sh ip route 
@@ -43,4 +83,61 @@ C    192.168.3.0/24 is directly connected, FastEthernet0/1
 S*   0.0.0.0/0 [1/0] via 10.0.0.1
 ```
 
-## Configuration complète
+show ip route static : affiche seulement les entrées statique
+
+```bash
+R3#sh ip route static 
+S    192.68.2.0/24 [1/0] via 192.168.1.1
+S    192.168.2.0/24 [100/0] via 192.168.4.1
+S    192.168.3.0/24 [1/0] via 192.168.1.1
+S*   0.0.0.0/0 [1/0] via 192.168.1.1
+```
+
+show ip route 192.168.2.1 : affiche le chemin emprunté pour atteindre la destination
+
+```bash
+R3#sh ip route 192.168.3.2
+Routing entry for 192.168.3.0/24
+  Known via "static", distance 1, metric 0
+  Routing Descriptor Blocks:
+  * 192.168.1.1
+      Route metric is 0, traffic share count is 1
+```
+
+## Test connection
+
+ping
+
+```bash
+R3#ping 192.168.3.2
+
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 192.168.3.2, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 60/64/76 ms
+```
+
+traceroute
+
+```bash
+R3#traceroute 192.168.3.2
+
+Type escape sequence to abort.
+Tracing the route to 192.168.3.2
+
+  1 192.168.1.1 40 msec 36 msec 32 msec
+  2 192.168.3.2 92 msec 64 msec 60 msec
+```
+
+Test route flottante, R3 f0/0 down
+
+```bash
+R3#traceroute 192.168.3.2
+
+Type escape sequence to abort.
+Tracing the route to 192.168.3.2
+
+  1 192.168.4.1 60 msec 40 msec 32 msec
+  2 192.168.2.1 96 msec 60 msec 60 msec
+  3 192.168.3.2 120 msec 88 msec 120 msec
+```
