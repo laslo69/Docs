@@ -1,5 +1,18 @@
 # Cisco - Routage statique IPv4
 
+## Topologie
+
+|Routeur|IPv4|
+|:-:|:-:|
+|R1|192.168.1.1 - 192.168.2.1 - 192.168.3.1 - 10.0.0.100|
+|R2|192.168.3.2|
+|R3|192.168.1.2 - 192.168.4.2|
+|R4|192.168.2.2 - 192.168.4.1|
+
+![topologie](./illustration/Routage_statique/topologie.png)
+
+***
+
 ## Visualiser table routage
 
 Quelques commandes utile pour visualiser le routage statique
