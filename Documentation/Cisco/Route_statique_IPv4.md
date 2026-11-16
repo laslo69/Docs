@@ -15,7 +15,7 @@
 
 ## Configuration complète
 
-R1
+**R1**
 
 ```bash
 ip route 192.168.4.0 255.255.255.0 192.168.1.2
@@ -23,7 +23,7 @@ ip route 192.168.4.0 255.255.255.0 192.168.2.2 100
 ip route 0.0.0.0 0.0.0.0 fastethernet 2/10
 ```
 
-R2
+**R2**
 
 ```bash
 ip route 192.168.1.0 255.255.255.0 192.168.3.1
@@ -32,7 +32,7 @@ ip route 192.168.4.0 255.255.255.0 192.168.3.1
 ip route 0.0.0.0 0.0.0.0 192.168.3.1
 ```
 
-R3
+**R3**
 
 ```bash
 ip route 192.168.3.0 255.255.255.0 192.168.1.1
@@ -43,7 +43,7 @@ ip route 0.0.0.0 0.0.0.0 192.168.1.1
 ip route 0.0.0.0 0.0.0.0 192.168.4.1 100
 ```
 
-R4
+**R4**
 
 ```bash
 ip route 192.168.1.0 255.255.255.0 192.168.4.2
@@ -60,6 +60,8 @@ ip route 0.0.0.0 0.0.0.0 192.168.4.2 100
 Quelques commandes utile pour visualiser le routage statique
 
 show ip route : affiche l'ensemble de la table de routage
+
+Note ! : Tant que la route utilisé par défaut est valide et fonctionnelle, la route flottante n'apparait pas dans la table de routage
 
 ```bash
 R1#sh ip route 
@@ -88,12 +90,12 @@ show ip route static : affiche seulement les entrées statique
 ```bash
 R3#sh ip route static 
 S    192.68.2.0/24 [1/0] via 192.168.1.1
-S    192.168.2.0/24 [100/0] via 192.168.4.1
+S    192.168.2.0/24 [1/0] via 192.168.4.1
 S    192.168.3.0/24 [1/0] via 192.168.1.1
 S*   0.0.0.0/0 [1/0] via 192.168.1.1
 ```
 
-show ip route 192.168.2.1 : affiche le chemin emprunté pour atteindre la destination
+show ip route 192.168.3.2 : affiche le chemin emprunté pour atteindre la destination cible
 
 ```bash
 R3#sh ip route 192.168.3.2
@@ -106,7 +108,7 @@ Routing entry for 192.168.3.0/24
 
 ## Test connection
 
-ping
+Contrôle avec ping pour tester la connection
 
 ```bash
 R3#ping 192.168.3.2
@@ -117,7 +119,7 @@ Sending 5, 100-byte ICMP Echos to 192.168.3.2, timeout is 2 seconds:
 Success rate is 100 percent (5/5), round-trip min/avg/max = 60/64/76 ms
 ```
 
-traceroute
+Vérification du chemin emprunté avec traceroute
 
 ```bash
 R3#traceroute 192.168.3.2
@@ -129,7 +131,7 @@ Tracing the route to 192.168.3.2
   2 192.168.3.2 92 msec 64 msec 60 msec
 ```
 
-Test route flottante, R3 f0/0 down
+Test route flottante avec traceroute, le lien FastEthernet0/0 du routeur R3 est mis en down
 
 ```bash
 R3#traceroute 192.168.3.2
