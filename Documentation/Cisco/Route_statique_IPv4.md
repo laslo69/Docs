@@ -21,7 +21,9 @@ Cisco IOS sélectionne généralement la route correspondant au préfixe le plus
 
 ![topologie](./illustration/Routage_statique/topologie.png)
 
-## Default route
+## Type Routage statique
+
+### Default route
 
 Une route par défaut ( notée 0.0.0.0/0) est utilisée lorsque aucune route plus spécifique ne correspond à la destination du paquet. Elle est souvent appelée "gateway of last resort" (passerelle de dernier recours)
 
@@ -31,7 +33,7 @@ La route par défaut envoie les paquets vers une passerelle (généralement un F
 R4(config)#ip route 0.0.0.0 0.0.0.0 192.168.2.1
 ```
 
-## Network route
+### Network route
 
 Une route réseau Network Route est une route statique permettant de définir explicitement le chemin à emprunter pour atteindre un réseau distant, en indiquant son préfixe et le prochain saut (Next Hop)
 
@@ -42,7 +44,7 @@ R3(config)#ip route 192.168.2.0 255.255.255.0 192.168.1.1
 R3(config)#ip route 192.168.3.0 255.255.255.0 192.168.1.1
 ```
 
-## Floating
+### Floating
 
 Une route flottante est une route de secours avec une distance administrative plus élevée que la route principale. Elle est utilisée pour assurer la redondance en cas de panne du lien principal
 
@@ -56,3 +58,5 @@ R4(config)#ip route 192.168.1.0 255.255.255.0 192.168.2.1 100
 R4(config)#ip route 192.168.3.0 255.255.255.0 192.168.2.1
 R4(config)#ip route 192.168.3.0 255.255.255.0 192.168.4.2 100
 ```
+
+## Visualiser table routage
