@@ -35,7 +35,7 @@ R4(config)#ip route 0.0.0.0 0.0.0.0 192.168.2.1
 
 ### Network route
 
-Une route réseau Network Route est une route statique permettant de définir explicitement le chemin à emprunter pour atteindre un réseau distant, en indiquant son préfixe et le prochain saut (Next Hop)
+Une route " Network Route " est une route statique permettant de définir explicitement le chemin à emprunter pour atteindre un réseau distant, en indiquant son préfixe et le prochain saut (Next Hop)
 
 La configuration de la route doit se faire sur chaque routeur pour pouvoir, dans un premier temps émettre, mais aussi recevoir la réponse
 
