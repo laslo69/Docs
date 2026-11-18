@@ -64,7 +64,7 @@ ipv6 route ::/0 f0/1 fe80::1 130
 
 Quelques commandes utile pour visualiser le routage statique
 
-show ip route : affiche la route retenue pour atteindre une destination donnée
+`show ipv6 route` : affiche la route retenue pour atteindre une destination donnée
 
 La table de routage est cependant, beaucoup moins digeste à lire que celle en IPv4
 
@@ -118,7 +118,7 @@ L   FF00::/8 [0/0]
      via ::, Null0
 ```
 
-show ip route static : affiche seulement les entrées statique
+`show ipv6 route static` : affiche seulement les entrées statique
 
 ```bash
 R3#sh ipv6 route static 
@@ -136,7 +136,7 @@ S   2001:DB8:ACAD:3::/64 [1/0]
      via FE80::1, FastEthernet0/0
 ```
 
-show ip route `2001:0db8:acad:0001::2` : affiche le chemin emprunté pour atteindre la destination cible
+`show ipv6 route 2001:0db8:acad:0001::2` : affiche le chemin emprunté pour atteindre la destination cible
 
 ```bash
 R3#show ipv6 route 2001:0db8:acad:0001::2
