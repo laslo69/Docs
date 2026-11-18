@@ -7,7 +7,7 @@ Documentation sur les concepts des protocoles, Les configurations spécifiques a
 ### Routage
 
 - [Routage Statique IPv4](./Network/Route_statique_IPv4.md)
-- [Routage Statique IPv4](./Network/Route_statique_IPv6.md)
+- [Routage Statique IPv6](./Network/Route_statique_IPv6.md)
 
 ## Cisco
 
