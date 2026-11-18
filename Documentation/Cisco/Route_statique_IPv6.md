@@ -1,4 +1,4 @@
-# Cisco - Routage statique IPv4
+# Cisco - Routage statique IPv6
 
 ## Topologie
 
