@@ -7,11 +7,13 @@ Documentation sur les concepts des protocoles, Les configurations spécifiques a
 ### Routage
 
 - [Routage Statique IPv4](./Network/Route_statique_IPv4.md)
+- [Routage Statique IPv4](./Network/Route_statique_IPv6.md)
 
 ## Cisco
 
-Configuration Cisco avec les commandes de configuration, contrôle et débuggage
+Configuration Cisco, réalisé sur GNS3 ou packet tracer selon le besoin
 
 ### Routage
 
 - [Routage Statique IPv4](./Cisco/Route_statique_IPv4.md)
+- [Routage Statique IPv6](./Cisco/Route_statique_IPv6.md)
