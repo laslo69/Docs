@@ -16,6 +16,8 @@ Cisco :
 Router(config)# ipv6 unicast-routing
 ```
 
+Avec IPv6, le routage doit se faire avec les adresses Global Unicast Address, mais aussi avec les Uniq Local Address si elles sont utilisées
+
 Note : Exemple avec commande Cisco IOS
 
 ## Topologie
